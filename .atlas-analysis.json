@@ -1,28 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Frappe Learning",
+  "projectType": "saas",
+  "projectName": "Frappe Learning",
+  "projectDescription": "An open source, easy-to-use Learning Management System built on the Frappe Framework, supporting structured courses, live classes, quizzes, assignments, and certifications.",
   "theme": "almond",
-  "colors": {
-    "primary": "#7c7c7c",
-    "light": "#070707",
-    "dark": "#c8c8c8"
-  },
-  "favicon": "https://media.brand.dev/27af4dae-152b-493f-8385-6ed400f6a2a1.png",
-  "logo": {
-    "light": "https://media.brand.dev/378d1971-bc8a-419f-b5cc-ddf132c8cbc8.svg",
-    "dark": "https://media.brand.dev/378d1971-bc8a-419f-b5cc-ddf132c8cbc8.svg"
-  },
-  "navbar": {
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/frappe/lms"
-    }
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/frappe/lms"
-    }
-  },
+  "primaryColor": "#7c7c7c",
+  "lightColor": "#070707",
+  "darkColor": "#c8c8c8",
   "navigation": {
     "tabs": [
       {
@@ -103,5 +86,29 @@
         ]
       }
     ]
-  }
+  },
+  "keyFeatures": [
+    "Structured course creation with chapters and lessons",
+    "Live classes via Zoom and Google Meet integration",
+    "Quizzes with single-choice, multiple-choice, and open-ended questions",
+    "Assignment submission and review workflow",
+    "Course and batch certifications with custom templates",
+    "Batch-based learner grouping with timetables",
+    "Programming exercises with code execution",
+    "SCORM content support",
+    "Payments and billing integration",
+    "Job board for certified learners",
+    "Full-text search with SQLite index",
+    "Plugin system for profile tabs and page extensions"
+  ],
+  "publicApiSurface": [
+    "GET/POST /api/method/lms.lms.api.get_user_info",
+    "GET/POST /api/method/lms.lms.api.get_translations",
+    "GET/POST /api/method/lms.lms.api.validate_billing_access",
+    "LMS Roles: Moderator, Course Creator, Batch Evaluator, LMS Student",
+    "Plugin: PageExtension (render_header, render_footer)",
+    "Plugin: ProfileTab (get_title, render)",
+    "Markdown Macros: Exercise, Quiz, YouTubeVideo, Video, Assignment, Embed, Audio, PDF",
+    "Hooks: lms_lesson_page_extensions, profile_tabs, lms_markdown_macro_renderers"
+  ]
 }

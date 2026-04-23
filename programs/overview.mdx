@@ -1,0 +1,66 @@
+---
+title: "Learning programs: bundle multiple courses"
+description: "Programs group multiple courses into a single structured learning path, with optional course ordering and per-member progress tracking."
+---
+
+A program is a named collection of courses that guides learners through a structured learning path. Rather than enrolling in individual courses, learners enroll in a program and work through all of its courses together. Moderators and instructors create and manage programs; the **LMS Student** role has read access to published programs.
+
+## How programs work
+
+Each program has a **Title** that also serves as its unique identifier. Once created, you add courses to the **Program Courses** child table. Each row in that table links to an `LMS Course` and stores the course title fetched from the linked record.
+
+Programs also maintain a **Program Members** child table for tracking enrollment. When a learner enrolls, a row is added with their user reference and their overall progress percentage.
+
+Two summary fields — **Course Count** and **Member Count** — are stored on the program document and updated as courses and members are added or removed.
+
+## Create a program
+
+<Steps>
+  <Step title="Open the programs page">
+    Navigate to **Programs** in the sidebar. Moderators and instructors see a list of all programs with their course and member counts. Click the **New** button in the top-right corner. The **Create Program** dialog opens.
+  </Step>
+
+  <Step title="Set the title and options">
+    Enter a **Title** for the program. This value is used as the program's unique name and identifier, so it must be unique across all programs.
+
+    Configure the two optional settings:
+
+    | Field | Description |
+    |---|---|
+    | Published | Makes the program visible to learners on the Programs page |
+    | Enforce Course Order | When enabled, learners must complete each course before the next one unlocks |
+
+    When **Enforce Course Order** is on, the program detail page shows a lock overlay on courses that are not yet eligible, with the message: "Please complete the previous course to unlock this one."
+  </Step>
+
+  <Step title="Add courses">
+    Click **Add** in the **Courses** section. Search for and select an `LMS Course`. The course is added to the list with its title fetched automatically.
+
+    You can reorder courses by dragging rows. The order matters when **Enforce Course Order** is enabled, as it determines the sequence in which courses unlock.
+
+    To remove courses, select one or more rows using the checkboxes and click the trash icon in the selection banner.
+  </Step>
+
+  <Step title="Add members (optional)">
+    Click **Add** in the **Members** section and search for a Frappe user to enroll directly. For learners who should self-enroll, leave this section empty and publish the program — learners can browse published programs and confirm their own enrollment.
+  </Step>
+
+  <Step title="Save the program">
+    Click **Save**. A success toast confirms the program was created or updated.
+  </Step>
+</Steps>
+
+## Learner experience
+
+Learners see the Programs page divided into two tabs: **Enrolled** and **Published**. Enrolled programs show a progress bar and a percentage-completed label. Published programs that the learner has not yet joined show an enrollment confirmation dialog that lists all courses in the program before the learner confirms.
+
+Once enrolled, learners open the program detail page, which shows a grid of course cards. Each card is clickable if the course is eligible (always eligible when order is not enforced; unlocked sequentially when it is). A progress badge at the top of the page shows the overall completion percentage across all courses in the program.
+
+## Progress summary
+
+Moderators and instructors can view a **Progress Summary** for any program that has at least one member. Click the **Progress Summary** button inside the program's edit dialog to open a summary view showing:
+
+- Total enrollment count
+- Average progress percentage across all members
+- A donut chart with progress distribution across five bands: 0–20%, 20–40%, 40–60%, 60–80%, and 80–100%
+- A searchable per-member progress list with full name and percentage completed

@@ -1,0 +1,116 @@
+---
+title: "Configure Frappe Learning settings"
+description: "Manage site-wide behaviour, access control, sidebar visibility, payments, email templates, SEO metadata, and more from the LMS Settings doctype."
+---
+
+LMS Settings is a single-record doctype that controls how Frappe Learning behaves across your entire site. Only users with the **System Manager** or **Moderator** role can read and write these settings. To open it, go to the Frappe desk and search for **LMS Settings**, or navigate to **LMS → LMS Settings**.
+
+The form is divided into eight tabs. Each tab groups related options so you can find and update settings without scrolling through a single long page.
+
+<AccordionGroup>
+  <Accordion title="General">
+    The General tab controls global behaviour that affects every visitor and learner on the site.
+
+    | Field | Default | Description |
+    | ----- | ------- | ----------- |
+    | Allow Guest Access | Enabled | When enabled, visitors who are not logged in can browse published courses and their overview pages. Disable this to require login before any LMS content is visible. |
+    | Prevent Skipping Videos | Disabled | When enabled, learners must watch each video lesson to completion before the lesson is marked complete. |
+    | Send calendar invite for evaluations | Disabled | Sends a calendar invite to the learner and evaluator when a certificate evaluation is scheduled. |
+    | Make LMS the default home | Disabled | Redirects users to the LMS portal (`/lms`) after login instead of the default Frappe desk home. |
+    | Disable PWA | Disabled | Prevents the site from being installed as a Progressive Web App on mobile devices. |
+    | Unsplash Access Key | — | API key for the Unsplash integration, which lets instructors search and embed stock images in course content. |
+    | LiveCode URL | `https://falcon.frappe.io` | Base URL for the LiveCode server used to run in-browser programming exercises. |
+
+    The General tab also contains a **Notifications** section with two dropdowns — these are documented in detail in [Email and in-app notifications setup](/administration/notifications).
+  </Accordion>
+
+  <Accordion title="Signup Settings">
+    The Signup Settings tab controls who can register for an account and what they see during registration.
+
+    | Field | Default | Description |
+    | ----- | ------- | ----------- |
+    | Identify User Category | Disabled | When enabled, new users are asked to identify their role (for example, student or professional) during signup. |
+    | Disable Signup | Enabled | When enabled, the public signup page is hidden and new accounts can only be created by an administrator. |
+    | Custom Signup Content | — | An HTML block rendered alongside the standard signup form. Use this to add branding, instructions, or terms-of-service text. |
+
+    <Note>
+      `Disable Signup` is enabled by default. If you want learners to self-register, uncheck this field and save.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Sidebar">
+    The Sidebar tab lets you choose which navigation items appear in the LMS portal sidebar. Toggle each item on or off to match the features you have enabled on your site.
+
+    **Items in sidebar**
+
+    | Field | Default | Description |
+    | ----- | ------- | ----------- |
+    | Courses | Enabled | Shows the Courses link in the sidebar. |
+    | Batches | Enabled | Shows the Batches link in the sidebar. |
+    | Jobs | Enabled | Shows the Job Openings link in the sidebar. |
+    | Statistics | Enabled | Shows the Statistics link in the sidebar. |
+    | Notifications | Enabled | Shows the Notifications bell/link in the sidebar. |
+    | Certifications | Enabled | Shows the Certifications link in the sidebar. |
+    | Programming Exercises | Enabled | Shows the Programming Exercises link in the sidebar. |
+
+    **Custom sidebar items**
+
+    Below the toggles is a **Sidebar Items** child table where you can add custom links. Each row in the `LMS Sidebar Item` table accepts a label and a URL, letting you surface external resources or internal Frappe pages alongside the built-in navigation.
+  </Accordion>
+
+  <Accordion title="Payment Settings">
+    The Payment Settings tab configures how Frappe Learning collects money for paid courses and batches. Full documentation is available on the [Set up payments for courses and batches](/administration/payments) page.
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Payment Gateway | The name of the Frappe Payments gateway record to use for transactions. |
+    | Default Currency | The currency used when no course-level currency is specified. |
+    | Apply GST for India | Adds Indian Goods and Services Tax to the checkout total. |
+    | Show USD Equivalent | Displays an approximate USD price alongside the local currency price. |
+    | Primary Countries | Countries whose visitors see the local currency price rather than the USD equivalent. Visible only when **Show USD Equivalent** is enabled. |
+    | Apply Rounding on Equivalent | Rounds the displayed USD equivalent to the nearest whole number. |
+    | Send Payment Reminders for Batch | Sends a daily reminder email to learners who have not yet paid for a batch. |
+    | Send Payment Reminders for Course | Sends a daily reminder email to learners who have not yet paid for a course. |
+  </Accordion>
+
+  <Accordion title="Email Templates">
+    The Email Templates tab links existing **Email Template** records to specific LMS events. Frappe Learning uses these templates when sending transactional emails.
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Certificate Email Template | Sent to a learner when they earn a course completion certificate. |
+    | Batch Confirmation Template | Sent to a learner when their batch enrollment is confirmed. |
+    | Payment Reminder Template | Sent to a learner who has an outstanding payment for a course or batch. |
+
+    <Tip>
+      Create your email templates first in **Email Template** and then select them here. Each template has access to Jinja variables populated from the relevant doctype — for example, the certificate template receives the learner's name and the course title.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="SEO">
+    The SEO tab provides site-level metadata that search engines and link-preview tools use when a specific page does not define its own metadata.
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Meta Description | A short description shown in search engine result snippets for pages that don't have their own description. |
+    | Meta Image | A fallback Open Graph image used for pages that don't have a cover image. |
+    | Meta Keywords | A comma-separated list of keywords applied to all pages on the site. |
+  </Accordion>
+
+  <Accordion title="Contact Us">
+    The Contact Us tab sets the destination for learner enquiries.
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Contact Us Email | Email address shown on the Contact page. Clicking it opens the user's email client. |
+    | Contact Us URL | A URL to an external contact form or support portal. When set, learners are linked to this URL instead of the email address. |
+  </Accordion>
+
+  <Accordion title="Jobs">
+    The Jobs tab controls the job board feature, which lets organisations post open positions alongside their learning content.
+
+    | Field | Default | Description |
+    | ----- | ------- | ----------- |
+    | Allow Job Posting | Enabled | When enabled, users with the appropriate permissions can post job opportunities that appear in the **Job Openings** section of the portal. |
+  </Accordion>
+</AccordionGroup>

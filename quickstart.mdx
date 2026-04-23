@@ -1,80 +1,63 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Get started with Frappe Learning"
+description: "Set up Frappe Learning using Docker in minutes. This guide walks you through launching a local instance and creating your first course."
 ---
 
-## Get started in three steps
+This page walks you through the fastest way to get Frappe Learning running on your machine. The Docker setup requires only Docker and docker-compose — no manual dependency installation needed. For a production deployment, see [managed hosting](/installation/managed-hosting) or [self-hosting](/installation/self-hosting).
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Create a working directory and download the required files">
+    Create a folder for the project, then download the Docker Compose file and the initialization script:
 
-### Step 1: Set up your local environment
+    ```bash
+    mkdir frappe-learning
+    cd frappe-learning
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    # Download the Docker Compose file
+    wget -O docker-compose.yml https://raw.githubusercontent.com/frappe/lms/develop/docker/docker-compose.yml
 
-### Step 2: Deploy your changes
+    # Download the setup script
+    wget -O init.sh https://raw.githubusercontent.com/frappe/lms/develop/docker/init.sh
+    ```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    The Compose file starts three services: MariaDB, Redis, and the Frappe bench container. The `init.sh` script initializes the bench, installs the LMS app, and creates the site on first run.
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Start the containers">
+    Run the following command from inside the `frappe-learning` directory:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    ```bash
+    docker compose up -d
+    ```
 
-### Step 3: Go live
+    The `-d` flag runs the containers in the background. The first run takes a few minutes while the bench is initialized and the LMS app is installed.
+  </Step>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Step title="Open Frappe Learning in your browser">
+    Once the containers are running, open the following URL:
 
-## Next steps
+    ```
+    http://lms.localhost:8000/lms
+    ```
 
-Now that you have your docs running, explore these key features:
+    Log in with the default credentials:
+
+    | Field    | Value         |
+    | -------- | ------------- |
+    | Username | Administrator |
+    | Password | admin         |
+  </Step>
+</Steps>
+
+<Tip>
+  Now that you are logged in, head to **Courses** and click **New Course** to create your first course. You can add chapters and lessons to organize your content, then share the course link with learners.
+</Tip>
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Create a Course" icon="book-open" href="/courses/create-course">
+    Learn how to structure your content into chapters and lessons and publish your first course.
+  </Card>
+  <Card title="Self-host in production" icon="server" href="/installation/self-hosting">
+    Deploy Frappe Learning to your own server using the easy install script.
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

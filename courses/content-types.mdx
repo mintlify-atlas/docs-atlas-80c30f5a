@@ -1,0 +1,143 @@
+---
+title: "Lesson content types and media"
+description: "Frappe Learning lessons support a macro system for embedding video, audio, PDFs, quizzes, exercises, assignments, and iframes inside markdown content."
+---
+
+The body of every lesson is written in Markdown, but Frappe Learning extends standard Markdown with a macro system that lets you embed interactive and media content. Macros are rendered server-side and inserted into the page as HTML. They use a double-curly-brace syntax:
+
+```text
+{{ MacroName("argument") }}
+```
+
+The available macros are registered in `hooks.py` under `lms_markdown_macro_renderers` and each macro maps to a renderer function in `lms/plugins.py`. The sections below describe each macro, its argument format, and the HTML it produces.
+
+<Note>
+  Frappe Learning also supports SCORM packages as an alternative to lesson-based content. SCORM content is attached at the chapter level rather than embedded in lesson markdown. See [SCORM support](/developer/scorm-support) for details.
+</Note>
+
+## Video
+
+Renders an HTML5 `<video>` element with playback controls. Download is disabled via `controlsList='nodownload'`. The source is URL-encoded before being inserted.
+
+```text
+{{ Video("/files/intro-to-python.mp4") }}
+```
+
+**Argument:** the server path to the video file (typically under `/files/`).
+
+**Rendered output:** a full-width `<video>` element with `controls` and `controlsList='nodownload'`, sourced to the URL-encoded path with `type='video/mp4'`.
+
+## YouTubeVideo
+
+Renders a responsive YouTube embed using an `<iframe>`. The video is embedded at 100% width and 400 pixels tall.
+
+```text
+{{ YouTubeVideo("dQw4w9WgXcQ") }}
+```
+
+**Argument:** the YouTube video ID (the part after `v=` in a YouTube URL).
+
+**Rendered output:** an `<iframe>` pointed at `https://www.youtube.com/embed/{video_id}` with `allowfullscreen` enabled.
+
+<Note>
+  A lesson also has a dedicated **YouTube Video URL** field (separate from the markdown body). A URL entered in that field appears at the top of the lesson, above the body content. The `YouTubeVideo` macro embeds a video inline within the markdown body at the exact position of the macro call.
+</Note>
+
+## Audio
+
+Renders an HTML5 `<audio>` element with playback controls. Download is disabled. The source path is URL-encoded.
+
+```text
+{{ Audio("/files/lecture-01.mp3") }}
+```
+
+**Argument:** the server path to the audio file.
+
+**Rendered output:** a full-width `<audio>` element with `controls` and `controlsList='nodownload'`, sourced to the URL-encoded path with `type='audio/mp3'`.
+
+## PDF
+
+Renders a PDF viewer using an `<iframe>` with the toolbar hidden (`#toolbar=0`). The iframe is 100% wide and 700 pixels tall.
+
+```text
+{{ PDF("/files/course-slides.pdf") }}
+```
+
+**Argument:** the server path to the PDF file.
+
+**Rendered output:** an `<iframe>` with `src='{url-encoded-path}#toolbar=0'` at `width='100%'` and `height='700px'`.
+
+## Quiz
+
+Renders an interactive quiz from an `LMS Quiz` record. The quiz appears inline in the lesson with the learner's submission history if the quiz is configured to show it.
+
+```text
+{{ Quiz("intro-quiz") }}
+```
+
+**Argument:** the `name` of an existing `LMS Quiz` record.
+
+**Rendered output:** the quiz template rendered via `templates/quiz/quiz.html`, including all questions, answer options, and submission controls. Guest users see a prompt to log in rather than the quiz itself.
+
+The quiz renderer reads the following fields from the `LMS Quiz` record:
+
+| Field | Purpose |
+| ----- | ------- |
+| `title` | Displayed as the quiz heading. |
+| `max_attempts` | Limits how many times a learner can submit. |
+| `show_answers` | Controls whether correct answers are revealed after submission. |
+| `show_submission_history` | Shows past scores and submission dates. |
+| `passing_percentage` | The minimum score required to pass. |
+
+<Note>
+  A lesson also has a dedicated **Quiz ID** field. Entering a quiz name in that field appends the quiz at the bottom of the lesson automatically, without needing a macro in the body. Use the macro when you want the quiz to appear at a specific position within the lesson content.
+</Note>
+
+## Exercise
+
+Renders a coding or written exercise from an `LMS Exercise` record.
+
+```text
+{{ Exercise("python-variables") }}
+```
+
+**Argument:** the `name` of an existing `LMS Exercise` record.
+
+**Rendered output:** the exercise template rendered via `templates/exercise.html`.
+
+## Assignment
+
+Renders a file-upload assignment widget. Learners can submit a file of the specified type in response to the question.
+
+```text
+{{ Assignment("Describe the water cycle-PDF") }}
+```
+
+**Argument format:** `"{question text}-{file type}"` where the question and file type are separated by a hyphen.
+
+Supported file types and their accepted MIME patterns:
+
+| File type | Accepted formats |
+| --------- | ---------------- |
+| `Document` | `.doc`, `.docx`, `.xml`, Word document MIME types |
+| `PDF` | `.pdf` |
+| `Image` | `.png`, `.jpg`, `.jpeg` |
+| `Video` | `video/*` |
+
+**Rendered output:** the assignment template rendered via `templates/assignment.html`, showing the question text and a file upload control filtered to the specified type.
+
+## Embed
+
+Renders any external content in an `<iframe>` using a type and URL separated by `|||`. The iframe dimensions vary by type: `pdf` embeds use 75% width and 600 px height; all other types use 100% width and 400 px height.
+
+```text
+{{ Embed("pdf|||https://example.com/report.pdf") }}
+```
+
+```text
+{{ Embed("video|||https://example.com/player/embed/abc123") }}
+```
+
+**Argument format:** `"{type}|||{url}"` — the type string and the embed URL joined by three pipe characters.
+
+**Rendered output:** an `<iframe>` with `src` set to the provided URL, `allowfullscreen`, and rounded corners via the app's border-radius token.

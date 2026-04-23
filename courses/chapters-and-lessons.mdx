@@ -1,0 +1,87 @@
+---
+title: "Organize content with chapters and lessons"
+description: "Chapters group related lessons inside a course. Learn how to add chapters, create lessons, write content in the markdown editor, and track progress."
+---
+
+Courses in Frappe Learning are organized into chapters, and chapters hold lessons. Chapters have a title and an ordered list of lesson references; lessons carry the actual content — markdown text, embedded media, quizzes, and assignments. Structuring your material into chapters helps learners understand the scope of each section before they begin.
+
+<Tip>
+  Group lessons that share a common theme or prerequisite into the same chapter. Learners see the full chapter outline before starting, so a well-named chapter sets clear expectations about what they will learn in that block.
+</Tip>
+
+## Add a chapter
+
+<Steps>
+  <Step title="Open the course outline panel">
+    Navigate to the course and open the **Settings** tab. The right-hand panel is labeled **Chapters** and shows the current course outline.
+
+    If you are viewing a course that has no chapters yet, the panel is empty.
+  </Step>
+
+  <Step title="Create a new chapter">
+    Click the **Add Chapter** button at the bottom of the outline panel. A dialog or inline form appears asking for a **Title**.
+
+    Enter a descriptive title for the chapter — for example, "Introduction" or "Module 1: Core Concepts" — and save. The chapter is created as a `Course Chapter` record linked to the current course.
+  </Step>
+</Steps>
+
+## Add a lesson
+
+<Steps>
+  <Step title="Locate the chapter">
+    In the course outline panel, find the chapter you want to add a lesson to. Chapters are listed in order with an expand control to show their lessons.
+  </Step>
+
+  <Step title="Create a new lesson">
+    Click the **Add Lesson** button inside the chapter. A form opens with the following fields:
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Title (required) | The lesson name shown in the course outline and browser tab. |
+    | Course Chapter (required) | Automatically set to the parent chapter. |
+    | Include In Preview | Allow non-enrolled visitors to view this lesson. |
+    | YouTube Video URL | A YouTube video displayed at the top of the lesson. |
+    | Body | The main lesson content, written in Markdown. |
+    | Instructor Notes | Private markdown notes visible only to instructors. |
+    | Quiz ID | The name of an `LMS Quiz` record appended at the bottom of the lesson. |
+    | Question | An assignment question shown at the bottom of the lesson. |
+    | File Type | The accepted file type for assignment submissions: Image, Document, or PDF. |
+
+    Save the lesson to add it to the chapter's lesson list.
+  </Step>
+
+  <Step title="Reorder lessons">
+    Lessons within a chapter can be reordered by dragging them in the outline panel. The order saved in the outline determines the sequence learners see.
+  </Step>
+</Steps>
+
+## Writing lesson content
+
+The **Body** field in each lesson uses a Markdown editor. Standard markdown syntax applies — headings, bold, italic, lists, code blocks, and links are all supported.
+
+Beyond standard markdown, Frappe Learning provides a macro system that lets you embed rich media and interactive components directly in the lesson body. Macros use double-curly-brace syntax:
+
+```text
+{{ MacroName("argument") }}
+```
+
+See [Lesson content types](/courses/content-types) for the full list of available macros and their syntax.
+
+## Lesson preview
+
+Individual lessons can be marked as preview lessons by enabling **Include In Preview** on the lesson record. Preview lessons are accessible to visitors who have not enrolled, making them useful for giving prospective learners a sample of the course content.
+
+## Progress tracking
+
+When a learner completes a lesson — either by scrolling through the content or by passing an embedded quiz, depending on course settings — that lesson is marked complete and their overall enrollment progress is updated. Progress is stored as a float percentage on the `LMS Enrollment` record.
+
+The course **Dashboard** tab shows two progress views:
+
+- **Progress Summary** — a donut chart breaking enrollments into groups: just started (0–10%), in progress (10–75%), advanced (75–99%), and completed (100%).
+- **Lesson Completion** — a list of all lessons with their individual completion rates across all enrolled learners.
+
+Lessons are identified in the dashboard by a two-part index: `chapter_idx.lesson_idx`. For example, the first lesson in the second chapter appears as `2.1`.
+
+## SCORM packages
+
+A chapter can be flagged as a **SCORM package** by enabling the **Is SCORM Package** field. When enabled, the chapter stores metadata such as the manifest file, launch file, and package path needed to render the packaged content. See the [SCORM support](/developer/scorm-support) page in the Developer Guide for details on uploading and configuring SCORM packages.

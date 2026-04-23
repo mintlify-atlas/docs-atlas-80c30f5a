@@ -1,0 +1,86 @@
+---
+title: "Assignments: collect learner submissions"
+description: "Create file-based or text assignments, embed them in lesson content, and review learner submissions with optional grading and model answers."
+---
+
+Assignments let you collect structured responses from learners as part of a lesson. Each assignment is an `LMS Assignment` record that defines a question, the expected submission type, and optional grading settings. Learners submit directly on the lesson page, and their responses are stored as `LMS Assignment Submission` records.
+
+## Submission types
+
+The **Type** field on an `LMS Assignment` record controls what learners can submit and what file formats are accepted in the upload widget:
+
+| Type | Accepted formats |
+| ---- | ---------------- |
+| `Document` | `.doc`, `.docx`, `.xml`, Word document MIME types |
+| `PDF` | `.pdf` |
+| `Image` | `.png`, `.jpg`, `.jpeg` |
+| `Video` | Any video file (`video/*`) |
+| `Text` | Plain text entered directly in a textarea — no file upload |
+
+For file-based types, the upload widget filters the file picker to only the accepted formats listed above. For the `Text` type, learners type their response into a text area instead of uploading a file.
+
+## Create an assignment, attach it to a lesson, and review submissions
+
+<Steps>
+  <Step title="Create the assignment record">
+    Go to **LMS Assignment** in the desk and click **New**. Fill in the required fields:
+
+    | Field | Description |
+    | ----- | ----------- |
+    | **Title** (required) | A short name used to identify the assignment in lists and as the macro argument. |
+    | **Type** (required) | The submission format: `Document`, `PDF`, `Image`, `Video`, or `Text`. |
+    | **Question** (required) | The assignment prompt shown to learners. Supports rich text. |
+    | **Grade Assignment** | Visible only for `Text` type. When enabled, evaluators can leave a grade on the submission. Enabled by default for text assignments. |
+    | **Show Answer** | Visible only for `Text` type. When enabled, reveals the model answer field. |
+    | **Answer** | The model answer shown to learners after submission (only when **Show Answer** is on and **Type** is `Text`). |
+
+    Save the record. The assignment is named automatically in the format `ASG-#####`.
+  </Step>
+
+  <Step title="Attach the assignment to a lesson">
+    Open the lesson and choose one of two methods:
+
+    **Option A — Lesson fields (file-based assignments):**
+    Set the **Question** field on the lesson record to the assignment question text, and set **File Type** to the accepted format. This appends a single assignment widget at the bottom of the lesson.
+
+    **Option B — Assignment macro (inline position):**
+    Add the macro in the lesson **Body** at the position where you want the assignment to appear:
+
+    ```text
+    {{ Assignment("ASG-00001-PDF") }}
+    ```
+
+    The argument format is `"{assignment-name}-{file-type}"`. The assignment name and file type are joined by a hyphen. For example, if the assignment name is `ASG-00001` and the expected file type is `PDF`, write:
+
+    ```text
+    {{ Assignment("ASG-00001-PDF") }}
+    ```
+
+    For a `Document` submission:
+
+    ```text
+    {{ Assignment("ASG-00001-Document") }}
+    ```
+
+    <Note>
+      The file type in the macro argument must match exactly one of: `Document`, `PDF`, `Image`, or `Video`. Text assignments use the lesson's built-in text area and do not require the `Assignment` macro.
+    </Note>
+  </Step>
+
+  <Step title="Review learner submissions">
+    Submissions are stored as `LMS Assignment Submission` records linked to the assignment. To review them:
+
+    1. Open the `LMS Assignment` record.
+    2. In the **Links** section at the bottom of the form, click **LMS Assignment Submission** to see all submissions for this assignment.
+    3. Open a submission to view the uploaded file or text response.
+    4. For `Text` assignments with **Grade Assignment** enabled, enter a grade or feedback on the submission record and save.
+
+    <Tip>
+      The **Batch Evaluator** role has write access to assignment and submission records, making it straightforward to assign a dedicated reviewer without granting broader Moderator permissions.
+    </Tip>
+  </Step>
+</Steps>
+
+## Roles and permissions
+
+The **Course Creator**, **Moderator**, **System Manager**, and **Batch Evaluator** roles can create and edit assignment records. **LMS Students** have read-only access to assignment records and can create their own submissions.

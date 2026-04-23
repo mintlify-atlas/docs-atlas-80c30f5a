@@ -1,0 +1,41 @@
+---
+title: "Batch-based learning in Frappe Learning"
+description: "Batches in Frappe Learning let you run cohort-based, time-boxed learning with scheduled sessions, live classes, evaluations, and completion certificates."
+---
+
+A batch is a cohort of learners who study together within a fixed date range. Instead of letting students enroll and work through a course at their own pace, batches give instructors control over scheduling, seat availability, and assessment. Each batch has defined start and end dates, daily session times, a timezone, and one or more instructors drawn from the **Batch Evaluator** role.
+
+<CardGroup cols={2}>
+  <Card title="Create a batch" icon="circle-plus" href="/batches/create-batch">
+    Set up a new batch: configure dates, seats, pricing, courses, and evaluators.
+  </Card>
+  <Card title="Schedule live classes" icon="video" href="/batches/live-classes">
+    Add Zoom or Google Meet sessions to a batch and track attendance.
+  </Card>
+</CardGroup>
+
+## Key concepts
+
+### Enrollment
+
+Learners can join a batch in two ways. If **Allow Self Enrollment** is enabled on the batch, any published batch is open for learners to enroll themselves. When it is disabled, a Moderator or Batch Evaluator must add learners manually from the batch dashboard. For paid batches, enrollment is confirmed automatically once payment is completed.
+
+### Timetable
+
+Each batch carries a **Timetable** child table (`LMS Batch Timetable`) that schedules learning activities across the batch duration. You can also link a pre-built **Timetable Template** (`LMS Timetable Template`) to populate the schedule quickly. The **Allow accessing future dates** toggle controls whether learners can jump ahead in the timetable before those dates arrive.
+
+### Evaluators
+
+The **Batch Evaluator** role grants create, read, write, and delete access to batches, enrollments, and live classes. Evaluators are assigned as instructors on each batch and appear to learners as the batch hosts. You can create a new user with this role directly from the instructor field in the batch settings form.
+
+### Paid batches
+
+Enabling **Paid Batch** on a batch requires learners to pay before their enrollment is confirmed. You set an **Amount** and **Currency**; you can also set a separate **Amount (USD)** for USD-equivalent pricing. A configured payment gateway must be available in your Frappe site for payments to work.
+
+### Feedback
+
+After a batch ends, enrolled learners can rate the batch across three dimensions: content, instructors, and value. The batch dashboard shows the average score across all submissions. Moderators and evaluators can view the full list of individual feedback responses.
+
+### Certificates
+
+Enabling **Certification** on a batch allows you to generate certificates for participants. The **Evaluation** toggle, together with the **Evaluation End Date**, gates certificate generation behind a formal evaluation step. Certificates are issued in bulk from the batch detail page via the **Generate Certificates** action.

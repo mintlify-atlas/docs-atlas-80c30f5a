@@ -1,0 +1,65 @@
+---
+title: "Courses in Frappe Learning"
+description: "Courses are the primary unit of learning in Frappe Learning, organized into a three-level hierarchy of courses, chapters, and lessons."
+---
+
+A course in Frappe Learning is a self-contained unit of educational content. Each course is divided into chapters, and each chapter holds one or more lessons. This three-level hierarchy — Course → Chapter → Lesson — gives instructors a clear way to sequence and group material, while giving learners a predictable structure to navigate.
+
+<CardGroup cols={2}>
+  <Card title="Create a course" icon="plus" href="/courses/create-course">
+    Set up a new course, fill in the required details, and publish it for learners.
+  </Card>
+  <Card title="Chapters and lessons" icon="list" href="/courses/chapters-and-lessons">
+    Add chapters to group related lessons and control the order of content.
+  </Card>
+  <Card title="Content types" icon="file" href="/courses/content-types">
+    Embed videos, audio, PDFs, quizzes, exercises, and assignments in lesson bodies.
+  </Card>
+  <Card title="Assessments" icon="clipboard-check" href="/assessments/quizzes">
+    Add quizzes and assignments to measure learner progress.
+  </Card>
+</CardGroup>
+
+## Course hierarchy
+
+Every course is made up of three layers:
+
+- **Course** — the top-level record. It holds the title, description, cover image, instructors, pricing, and publishing settings.
+- **Chapter** — a grouping of lessons within a course. Chapters carry a title and an ordered list of lessons.
+- **Lesson** — the smallest unit of content. A lesson has a title, a markdown body, and optional embedded media such as videos, quizzes, or file uploads.
+
+Lessons in the dashboard are referenced by a two-part index that reflects their position: the chapter number followed by the lesson number within that chapter (for example, `1.1`, `1.2`, `2.1`).
+
+## Enrollment
+
+Learners access course content by enrolling. The enrollment model (`LMS Enrollment`) records the member, the course, and the learner's current progress as a percentage. There are three access patterns:
+
+- **Self-enrollment** — enabled by default. Any logged-in user can enroll directly from the course overview page.
+- **Restricted enrollment** — disable self-enrollment on the course settings to require an instructor or moderator to add learners manually.
+- **Paid courses** — enable **Paid Course** to gate enrollment behind a payment. The course price, currency, and an optional USD equivalent amount are configured on the course record.
+
+Enrollments can also originate from an **LMS Batch**, in which case the `enrollment_from_batch` field records the source batch.
+
+## Course statistics
+
+The **Dashboard** tab on each course page shows live statistics pulled from the `LMS Enrollment` and `Course Lesson` doctypes:
+
+- **Enrolled** — total number of learners who have enrolled.
+- **Average completion rate** — the mean progress percentage across all enrollments.
+- **Average rating** — the aggregate of learner reviews.
+- **Lessons** — total number of lessons in the course.
+
+The dashboard also shows per-student progress and a lesson completion breakdown sorted either by lesson index or by completion rate.
+
+## Reviews
+
+Enrolled learners can submit a rating and written review through the course overview page. The average rating is stored on the `LMS Course` record and displayed alongside the enrollment count and instructor names at the top of the overview.
+
+## Roles
+
+Two roles have create, write, and delete permissions on the `LMS Course` doctype:
+
+- **Course Creator** — can create and manage their own courses and lessons.
+- **Moderator** — has the same permissions as Course Creator plus the ability to publish courses and manage all content on the site.
+
+Instructors assigned to a course must hold the Course Creator or Batch Evaluator role. Only a Moderator can toggle the **Published** switch that makes a course visible to all learners.

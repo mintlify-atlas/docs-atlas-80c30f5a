@@ -1,0 +1,155 @@
+---
+title: "Extend Frappe Learning with plugins"
+description: "Use the PageExtension and ProfileTab plugin classes to inject custom scripts, styles, and profile tabs into Frappe Learning without patching core files."
+---
+
+Frappe Learning exposes a plugin system that lets you alter the behaviour of lesson pages and user profile pages from within a separate Frappe app. Plugins are plain Python classes that inherit from base classes defined in `lms/plugins.py`. You register them through standard Frappe hook entries in your app's `hooks.py`, so no core files are modified.
+
+## PageExtension
+
+`PageExtension` is the base class for injecting custom HTML into lesson pages. Subclasses override two methods to return HTML strings that are inserted into the rendered page.
+
+```python
+class PageExtension:
+    """PageExtension is a plugin to inject custom styles and scripts
+    into a web page.
+
+    The subclasses should overwrite the `render_header()` and
+    `render_footer()` methods to inject whatever styles/scripts into
+    the webpage.
+    """
+
+    def __init__(self):
+        self.context = frappe._dict()
+
+    def set_context(self, context):
+        self.context = context
+
+    def render_header(self):
+        """Returns the HTML snippet to be included in the head section
+        of the web page.
+
+        Typically used to include the stylesheets and javascripts to be
+        included in the <head> of the webpage.
+        """
+        return ""
+
+    def render_footer(self):
+        """Returns the HTML snippet to be included in the body tag at
+        the end of web page.
+
+        Typically used to include javascripts that need to be executed
+        after the page is loaded.
+        """
+        return ""
+```
+
+| Method | Insertion point | Typical use |
+| --- | --- | --- |
+| `render_header()` | `<head>` of the page | Stylesheets, early-loading scripts |
+| `render_footer()` | Bottom of `<body>` | Scripts that depend on DOM being ready |
+
+### LiveCodeExtension — a concrete example
+
+`LiveCodeExtension` ships with Frappe Learning and shows exactly how to implement a `PageExtension`. It reads a `livecode_url` from LMS Settings and renders two Jinja templates that wire up the live-code widget.
+
+```python
+class LiveCodeExtension(PageExtension):
+    def render_header(self):
+        livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
+        context = {"livecode_url": livecode_url}
+        return frappe.render_template("templates/livecode/extension_header.html", context)
+
+    def render_footer(self):
+        livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
+        context = {"livecode_url": livecode_url}
+        return frappe.render_template("templates/livecode/extension_footer.html", context)
+```
+
+### Registering a PageExtension
+
+Add your class's dotted Python path to the `lms_lesson_page_extensions` list in your app's `hooks.py`:
+
+```python
+# your_app/hooks.py
+lms_lesson_page_extensions = [
+    "your_app.plugins.YourPageExtension",
+]
+```
+
+You may register multiple extensions; they are applied in list order.
+
+---
+
+## ProfileTab
+
+`ProfileTab` is the base class for adding custom tabs to the user profile page. Every subclass must implement `get_title()` and `render()`.
+
+```python
+class ProfileTab:
+    """Base class for profile tabs.
+
+    Every subclass of ProfileTab must implement two methods:
+        - get_title()
+        - render()
+    """
+
+    def __init__(self, user):
+        self.user = user
+
+    def get_title(self):
+        """Returns the title of the tab.
+
+        Every subclass must implement this.
+        """
+        raise NotImplementedError()
+
+    def render(self):
+        """Renders the contents of the tab as HTML.
+
+        Every subclass must implement this.
+        """
+        raise NotImplementedError()
+```
+
+| Method | Return type | Description |
+| --- | --- | --- |
+| `get_title()` | `str` | Label displayed on the tab header |
+| `render()` | `str` | HTML content shown when the tab is active |
+
+### Registering ProfileTabs
+
+Add your class paths to the `profile_tabs` list in your app's `hooks.py`:
+
+```python
+# your_app/hooks.py
+profile_tabs = [
+    "your_app.plugins.YourProfileTab",
+]
+```
+
+### Example ProfileTab implementation
+
+```python
+import frappe
+from lms.lms.plugins import ProfileTab
+
+class PortfolioTab(ProfileTab):
+    def get_title(self):
+        return "Portfolio"
+
+    def render(self):
+        portfolio_items = frappe.get_all(
+            "Portfolio Item",
+            {"owner": self.user},
+            ["title", "url"],
+        )
+        return frappe.render_template(
+            "your_app/templates/portfolio_tab.html",
+            {"items": portfolio_items},
+        )
+```
+
+<Note>
+  The `self.user` attribute holds the **username** (email) of the profile being viewed, not necessarily the logged-in user. Guard your queries accordingly if content should be private.
+</Note>

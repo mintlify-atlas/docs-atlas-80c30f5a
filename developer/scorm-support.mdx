@@ -1,0 +1,93 @@
+---
+title: "Import and serve SCORM content packages"
+description: "Upload a SCORM zip archive as a course chapter in Frappe Learning and let SCORMRenderer serve the package assets directly from the site public directory."
+---
+
+Frappe Learning supports SCORM 1.2 content packages. An instructor uploads a standard SCORM zip file when creating or editing a chapter, the server extracts the package into the site's `public/scorm/` directory, and a dedicated page renderer serves each file with the correct MIME type. This makes it straightforward to reuse content authored in tools such as Articulate Storyline, Adobe Captivate, or iSpring.
+
+## How SCORMRenderer works
+
+`SCORMRenderer` is registered in `hooks.py` as a custom page renderer:
+
+```python
+# lms/hooks.py
+page_renderer = [
+    "lms.page_renderers.SCORMRenderer",
+]
+```
+
+The class extends Frappe's `BaseRenderer` and intercepts any request whose path contains `scorm/`:
+
+```python
+class SCORMRenderer(BaseRenderer):
+    def can_render(self):
+        return "scorm/" in self.path
+```
+
+When a matching request arrives, `render()` resolves the path inside the site's `public/` directory and streams the file back to the browser:
+
+```python
+def render(self):
+    path = os.path.join(frappe.local.site_path, "public", self.path.lstrip("/"))
+
+    if not self._is_safe_path(path):
+        raise frappe.PermissionError
+
+    extension = os.path.splitext(path)[1]
+    if not extension:
+        path = f"{path}.html"
+
+    if os.path.exists(path) and os.path.isfile(path):
+        return self._serve_file(path)
+    else:
+        # Falls back to serving index.html for directory-style URLs,
+        # or walks the chapter folder to find a matching filename.
+        ...
+```
+
+All paths are validated against the `public/scorm/` root before any file is opened, preventing directory traversal attacks.
+
+## Uploading a SCORM package as a chapter
+
+SCORM content is attached at the **chapter** level via the `upsert_chapter` API method. When `is_scorm_package` is `true`, the server:
+
+1. Extracts the zip file into `public/scorm/<course_name>/<chapter_title>/`.
+2. Parses `imsmanifest.xml` to locate the manifest file and the SCO launch file.
+3. Stores the extracted paths on the `Course Chapter` document (`scorm_package_path`, `manifest_file`, `launch_file`).
+4. Automatically creates a placeholder lesson inside the chapter so the learner has something to navigate to.
+
+```python
+@frappe.whitelist()
+def upsert_chapter(
+    title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
+):
+    ...
+    if is_scorm_package:
+        scorm_package = frappe._dict(scorm_package)
+        extract_path = extract_package(course, title, scorm_package)
+
+        values.update({
+            "scorm_package": scorm_package.name,
+            "scorm_package_path": extract_path.split("public")[1],
+            "manifest_file": get_manifest_file(extract_path).split("public")[1],
+            "launch_file": get_launch_file(extract_path).split("public")[1],
+        })
+```
+
+<Warning>
+  The upload process scans HTML, JS, and XML files inside the zip for suspicious patterns (inline event handlers, external script tags, `eval()`, `Function()`, Base64 calls, and XXE vectors). Packages that contain any of these patterns are rejected with an error.
+</Warning>
+
+## URL structure
+
+Once extracted, SCORM assets are served under the path:
+
+```
+/scorm/<course_name>/<chapter_title>/<asset_path>
+```
+
+The learner navigates to the chapter inside the course player as normal. The front-end iframe loads the SCO launch file resolved from `launch_file` on the chapter document.
+
+## Deleting a SCORM chapter
+
+When a SCORM chapter is deleted via `delete_chapter`, the extracted directory at `public/scorm/<course>/<chapter>/` is removed from disk automatically, keeping the site's storage clean.

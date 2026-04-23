@@ -1,0 +1,71 @@
+---
+title: "Customize the signup form and user onboarding"
+description: "Replace the default Frappe signup page with a branded form, collect user categories, and add a persona onboarding flow through LMS Settings and hooks."
+---
+
+Frappe Learning lets you replace the standard Frappe signup page with a custom form that collects additional information — such as a user category — during registration. After a user signs in for the first time, you can also present a persona questionnaire to personalise their experience.
+
+## How signup form selection works
+
+The `signup_form_template` hook in `hooks.py` points to a callable that decides which HTML template to render:
+
+```python
+# lms/hooks.py
+signup_form_template = "lms.plugins.show_custom_signup"
+```
+
+The `show_custom_signup()` function reads LMS Settings and returns the appropriate template path:
+
+```python
+# lms/plugins.py
+def show_custom_signup():
+    settings = frappe.get_single("LMS Settings")
+    if settings.custom_signup_content or settings.user_category:
+        return "lms/templates/signup-form.html"
+    return "frappe/templates/signup.html"
+```
+
+When either `custom_signup_content` or `user_category` is configured in LMS Settings, the custom template at `lms/templates/signup-form.html` is used. Otherwise the default Frappe signup page is served.
+
+## Configuring custom signup in LMS Settings
+
+Open **LMS Settings** in the Frappe Desk and set the following fields:
+
+| Field | Purpose |
+| --- | --- |
+| `custom_signup_content` | Rich-text or HTML shown above the signup form fields (e.g. a welcome message or terms). |
+| `user_category` | Enables a category selector on the signup form so users can self-classify (e.g. Student, Professional, Educator). |
+
+Setting either field activates the custom template automatically — no code changes are required.
+
+<Tip>
+  You can set both fields simultaneously. `custom_signup_content` renders at the top of the page, and `user_category` adds a dropdown below the standard name/email fields.
+</Tip>
+
+## Overriding signup_form_template in your own app
+
+If you need a completely different signup flow, point `signup_form_template` to your own callable in your app's `hooks.py`:
+
+```python
+# your_app/hooks.py
+signup_form_template = "your_app.plugins.my_signup_template"
+```
+
+```python
+# your_app/plugins.py
+def my_signup_template():
+    # Return the path to your Jinja template
+    return "your_app/templates/custom_signup.html"
+```
+
+The callable receives no arguments and must return a Frappe-resolvable template path string.
+
+## PersonaForm — post-login onboarding
+
+After an administrator signs in for the first time on a fresh installation, Frappe Learning can display a **PersonaForm** questionnaire. The form collects information about how the site will be used and sends the responses to `https://school.frappe.io` via the `capture_user_persona` API method. This step is optional and is gated behind the `System Manager` role.
+
+The `persona_captured` flag on LMS Settings is set to `True` once the responses have been submitted, so the form is shown only once.
+
+<Note>
+  The PersonaForm is only shown to System Managers and only when `persona_captured` is `False`. Regular learners never see it.
+</Note>

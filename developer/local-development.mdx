@@ -1,0 +1,60 @@
+---
+title: "Set up Frappe Learning for local development"
+description: "Install Frappe Learning locally using the bench CLI, create a development site, and start the server to begin building and testing your changes."
+---
+
+Frappe Learning is built on the Frappe Framework and is installed like any other Frappe app using the `bench` CLI. The steps below walk you through creating a fresh bench environment, provisioning a local site, and installing the `lms` app so you can start developing immediately.
+
+<Steps>
+  <Step title="Install bench and initialise a frappe-bench directory">
+    Follow the [Frappe Framework installation guide](https://frappeframework.com/docs/user/en/installation) to install bench and all system dependencies. Once bench is available, initialise a new bench directory and start the development server:
+
+    ```bash
+    bench init frappe-bench
+    cd frappe-bench
+    bench start
+    ```
+
+    Leave `bench start` running in this terminal. Open a second terminal window inside the same `frappe-bench` directory for the remaining steps.
+  </Step>
+
+  <Step title="Create a new site">
+    Create a site named `learning.test`. You will be prompted to set the administrator password.
+
+    ```bash
+    bench new-site learning.test
+    ```
+  </Step>
+
+  <Step title="Map the site to localhost">
+    Add the site hostname to your system's hosts file so the browser can resolve it:
+
+    ```bash
+    bench --site learning.test add-to-hosts
+    ```
+  </Step>
+
+  <Step title="Fetch the LMS app">
+    Download the Frappe Learning app from GitHub into the `apps/` directory of your bench:
+
+    ```bash
+    bench get-app https://github.com/frappe/lms
+    ```
+  </Step>
+
+  <Step title="Install the app on your site">
+    Install the `lms` app on `learning.test`:
+
+    ```bash
+    bench --site learning.test install-app lms
+    ```
+  </Step>
+
+  <Step title="Open the app in your browser">
+    Navigate to [http://learning.test:8000/lms](http://learning.test:8000/lms). You should see the Frappe Learning home page running from your local bench.
+  </Step>
+</Steps>
+
+<Note>
+  Make sure `bench start` is still running in your first terminal window whenever you access the site. The development server handles both the web and worker processes.
+</Note>

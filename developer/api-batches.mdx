@@ -1,0 +1,212 @@
+---
+title: "Batch and live class API endpoints"
+description: "Reference for the @frappe.whitelist() methods in lms.lms.api that manage batches, batch enrollments, live classes, and batch announcements."
+---
+
+Batches group learners into a cohort around one or more courses for a fixed period. The methods below cover fetching batches for learners and instructors, retrieving upcoming live classes, reading batch announcements, and deleting batches. All methods require an authenticated session or API token unless otherwise noted.
+
+---
+
+## get_my_batches
+
+Returns batches most relevant to the current user. It first checks the user's four most recently created batch enrollments, then falls back to the four next upcoming published batches.
+
+```
+POST /api/method/lms.lms.api.get_my_batches
+```
+
+**Parameters:** none
+
+**Returns:** Array of batch detail objects including title, description, start date, end date, and instructor information.
+
+---
+
+## get_created_batches
+
+Returns up to four upcoming batches where the current user is listed as an instructor, ordered by `start_date` ascending.
+
+```
+POST /api/method/lms.lms.api.get_created_batches
+```
+
+**Parameters:** none
+
+**Returns:** Array of batch detail objects for batches with a `start_date` on or after today.
+
+---
+
+## delete_batch
+
+Permanently deletes a batch and all associated data: enrollments, linked courses, assessments, timetable entries, feedback records, and discussion topics. Requires batch modification rights (instructor or moderator).
+
+```
+POST /api/method/lms.lms.api.delete_batch
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `batch` | string | Yes | Name of the LMS Batch document |
+
+<Warning>
+  This operation is irreversible. All enrollment records and batch discussions are permanently deleted.
+</Warning>
+
+---
+
+## get_announcements
+
+Returns communications sent to the batch as announcements. The caller must be enrolled in the batch or hold a Moderator or Batch Evaluator role.
+
+```
+POST /api/method/lms.lms.api.get_announcements
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `batch` | string | Yes | Name of the LMS Batch document |
+
+**Returns:** Array of communication objects ordered by `communication_date` descending.
+
+```json
+{
+  "message": [
+    {
+      "subject": "Welcome to the batch",
+      "content": "<p>Hello everyone...</p>",
+      "recipients": "batch@example.com",
+      "cc": null,
+      "communication_date": "2024-01-15 09:00:00",
+      "sender": "instructor@example.com",
+      "sender_full_name": "Jane Instructor",
+      "image": "/files/jane.jpg"
+    }
+  ]
+}
+```
+
+---
+
+## get_my_live_classes
+
+Returns up to two upcoming live classes across all batches the current user is enrolled in, ordered by date ascending.
+
+```
+POST /api/method/lms.lms.api.get_my_live_classes
+```
+
+**Parameters:** none
+
+**Returns:** Array of live class objects.
+
+```json
+{
+  "message": [
+    {
+      "name": "LMS-LC-00001",
+      "title": "Introduction to Python",
+      "description": "Kickoff session for the Python batch",
+      "time": "10:00:00",
+      "date": "2024-02-01",
+      "duration": 60,
+      "attendees": 24,
+      "join_url": "https://zoom.us/j/...",
+      "start_url": null,
+      "owner": "instructor@example.com"
+    }
+  ]
+}
+```
+
+---
+
+## get_admin_live_classes
+
+Returns up to four upcoming live classes for batches where the current user is listed as an instructor, ordered by date ascending.
+
+```
+POST /api/method/lms.lms.api.get_admin_live_classes
+```
+
+**Parameters:** none
+
+**Returns:** Array of LMS Live Class objects with the same fields as `get_my_live_classes`.
+
+---
+
+## get_admin_evals
+
+Returns up to four upcoming certificate evaluation appointments assigned to the current user as evaluator. Requires Batch Evaluator role.
+
+```
+POST /api/method/lms.lms.api.get_admin_evals
+```
+
+**Parameters:** none
+
+**Returns:** Array of LMS Certificate Request objects with evaluation scheduling details.
+
+```json
+{
+  "message": [
+    {
+      "name": "LMS-CR-00001",
+      "date": "2024-02-05",
+      "start_time": "14:00:00",
+      "course": "python-basics",
+      "evaluator": "evaluator@example.com",
+      "google_meet_link": "https://meet.google.com/...",
+      "member": "student@example.com",
+      "member_name": "John Student",
+      "course_title": "Python Basics"
+    }
+  ]
+}
+```
+
+---
+
+## save_evaluation_details
+
+Creates or updates a certificate evaluation record for a learner against a course. Requires Batch Evaluator or Moderator role.
+
+```
+POST /api/method/lms.lms.api.save_evaluation_details
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member` | string | Yes | User email of the learner |
+| `course` | string | Yes | Name of the LMS Course document |
+| `date_value` | string | Yes | Evaluation date in `YYYY-MM-DD` format |
+| `start_time` | string | Yes | Start time in `HH:MM:SS` format |
+| `end_time` | string | Yes | End time in `HH:MM:SS` format |
+| `status` | string | Yes | Evaluation status: `Pending`, `In Progress`, `Pass`, or `Fail` |
+| `batch_name` | string | No | Name of the associated LMS Batch document |
+| `evaluator` | string | No | User email of the evaluator |
+| `rating` | float | No | Score out of 5 (stored as a 0–1 fraction internally) |
+| `summary` | string | No | Free-text evaluator notes |
+
+**Returns:** Name of the created or updated `LMS Certificate Evaluation` document.
+
+---
+
+## save_certificate_details
+
+Issues or updates a certificate for a learner. Requires Batch Evaluator or Moderator role.
+
+```
+POST /api/method/lms.lms.api.save_certificate_details
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member` | string | Yes | User email of the learner |
+| `issue_date` | string | Yes | Issue date in `YYYY-MM-DD` format |
+| `template` | string | Yes | Name of the certificate template document |
+| `course` | string | No | Name of the LMS Course document |
+| `batch_name` | string | No | Name of the LMS Batch document |
+| `evaluator` | string | No | User email of the evaluator |
+| `expiry_date` | string | No | Expiry date in `YYYY-MM-DD` format |
+| `published` | bool | No | Whether the certificate is publicly visible (default: `true`) |
+
+**Returns:** Name of the created or updated `LMS Certificate` document.

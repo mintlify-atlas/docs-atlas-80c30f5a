@@ -1,0 +1,107 @@
+---
+title: "Create and publish a course"
+description: "Learn how to create a new course in Frappe Learning, fill in the required fields, add content, and publish it so learners can enroll."
+---
+
+Creating a course in Frappe Learning is a multi-step process: you start by providing the basic details that appear on the course card, then add chapters and lessons, configure pricing and certification if needed, and finally publish the course. Only users with the **Course Creator** or **Moderator** role can create courses.
+
+<Steps>
+  <Step title="Open the New Course dialog">
+    Navigate to **Courses** in the sidebar. Click the **Create** button in the top-right corner and select **New Course** from the dropdown menu.
+
+    A dialog opens with fields for the core course details. Fill in:
+
+    - **Title** (required) — the name of the course as it appears on the course card and overview page.
+    - **Category** — an optional `LMS Category` link used to filter courses on the listing page.
+    - **Instructors** (required) — one or more users who hold the Course Creator or Batch Evaluator role. You can create a new instructor inline from this field.
+    - **Course Image** — an image attached to the course card. If no image is set, the card uses the color selected in the **Color** field.
+    - **Short Introduction** (required) — a single-line summary shown on the course card.
+    - **Course Description** (required) — a rich-text field for the full course description shown on the overview page.
+
+    Click **Save** to create the course record and open the course detail page.
+  </Step>
+
+  <Step title="Complete the course settings">
+    After saving, you land on the **Settings** tab of the course detail page. The settings form is divided into four sections.
+
+    **Details**
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Title | The course name. |
+    | Category | Links to an `LMS Category` record. |
+    | Instructors | One or more Course Creator or Batch Evaluator users. |
+    | Tags | Comma-separated keywords shown as badges on the overview page. Type a tag and press Enter to add it. |
+    | Course Image | Uploaded image used on the course card. |
+    | Color | Fallback gradient color for the course card when no image is set. Options: Red, Blue, Green, Amber, Cyan, Orange, Pink, Purple, Teal, Violet, Yellow, Gray. |
+
+    **Publishing settings**
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Published | Makes the course visible to all users. Only Moderators can toggle this. |
+    | Published On | The date the course was published. |
+    | Upcoming | Marks the course as announced but not yet open for enrollment. |
+    | Featured | Highlights the course on the homepage. |
+    | Allow Self Enrollment | Allows any logged-in user to enroll. Disable to require manual enrollment. |
+
+    **About the course**
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Short Introduction | One-line summary shown on the course card. |
+    | Course Description | Rich-text description shown on the overview page. |
+    | Preview Video | A YouTube URL for a short introductory video shown on the overview page. |
+    | Related Courses | Links to other `LMS Course` records shown at the bottom of the overview page. |
+
+    **Pricing and certification**
+
+    | Field | Description |
+    | ----- | ----------- |
+    | Paid Course | Requires payment for enrollment. |
+    | Completion Certificate | Issues a certificate when a learner completes all lessons. |
+    | Paid Certificate | Requires payment for the certificate even if the course is free. |
+    | Amount | Price charged for the course or certificate. |
+    | Currency | The currency for the price. Required when Paid Course or Paid Certificate is enabled. |
+    | Amount (USD) | Optional USD equivalent. If set, the primary Amount takes precedence. |
+
+    Save changes with the **Save** button or with **Ctrl+S** / **Cmd+S**.
+  </Step>
+
+  <Step title="Add chapters and lessons">
+    The right-hand panel on the Settings tab shows the course outline. Use it to add chapters and lessons directly without leaving the settings form. See [Chapters and lessons](/courses/chapters-and-lessons) for step-by-step instructions.
+  </Step>
+
+  <Step title="Publish the course">
+    When the course is ready for learners, a Moderator must enable the **Published** toggle in the Publishing Settings section and save the record.
+
+    <Note>
+      Only users with the **Moderator** role can toggle the **Published** switch. A Course Creator can prepare the course and set it to **Upcoming**, but cannot make it publicly visible without Moderator approval.
+    </Note>
+
+    Once published, the course appears in the **Live** tab of the Courses listing. Learners can open the course overview page, read the description and outline, and enroll directly if self-enrollment is enabled.
+  </Step>
+</Steps>
+
+## The course overview page
+
+Learners who visit a course see its overview page, which displays:
+
+- The course title and short introduction.
+- The average rating (star) and enrolled student count.
+- Instructor names and avatars.
+- Tags as gray badges.
+- The full rich-text description.
+- A **Course Outline** section listing all chapters and their lessons, with progress indicators for enrolled learners.
+- A **Reviews** section where enrolled learners can leave a rating and written feedback.
+- Related courses shown at the bottom of the page.
+
+Instructors and Moderators see three tabs on the course detail page — **Overview**, **Dashboard**, and **Settings** — while learners only see the Overview.
+
+## Paid vs free courses
+
+A free course (Paid Course disabled) allows any logged-in user to enroll at no cost, provided self-enrollment is enabled. A paid course gates enrollment behind a payment processed through the configured payment gateway. Set the **Amount** and **Currency** fields when enabling Paid Course or Paid Certificate. The **Amount (USD)** field can optionally store a USD equivalent for display purposes, but the primary Amount field is always used for actual billing.
+
+## Deleting a course
+
+From the **Settings** tab, open the overflow menu (three-dot icon in the top-right header) and select **Delete**. A confirmation dialog warns that deleting the course also deletes all its chapters and lessons. This action cannot be undone.

@@ -1,0 +1,60 @@
+---
+title: "Schedule live classes for your batch"
+description: "Add Zoom or Google Meet live classes to a Frappe Learning batch, manage scheduling and auto-recordings, and track participant attendance after each session."
+---
+
+Live classes let instructors run real-time sessions with batch learners directly from Frappe Learning. Each live class is linked to a specific batch and scheduled for a particular date and time. When saved, the platform creates the meeting via the configured conferencing provider and stores the join and start URLs on the record.
+
+<Note>
+  Before creating a live class, set the **Conferencing Provider** and link a provider account (Zoom or Google Meet) in the batch settings. The **Add** button on the Classes tab is hidden until a valid provider account is configured on the batch.
+</Note>
+
+## Supported providers
+
+Frappe Learning supports two conferencing providers:
+
+- **Zoom** — meetings are created via the Zoom API using an `LMS Zoom Settings` account. The live class record stores the Meeting ID, UUID, password, start URL, and join URL returned by the API.
+- **Google Meet** — meetings are created using an `LMS Google Meet Settings` account.
+
+## Schedule a live class
+
+<Steps>
+  <Step title="Open the Classes tab">
+    Navigate to the batch and open the **Classes** tab. If a conferencing provider and account are configured on the batch, you will see an **Add** button in the top-right corner of the tab. If not, a warning banner prompts you to add a provider account first.
+  </Step>
+
+  <Step title="Fill in the live class details">
+    The live class modal collects the following fields:
+
+    | Field | Required | Description |
+    |---|---|---|
+    | Title | Yes | Name of the live class session |
+    | Host | Yes | Frappe user who will host the session |
+    | Date | Yes | Calendar date of the session |
+    | Time | Yes | Start time of the session |
+    | Duration | Yes | Length of the session in minutes |
+    | Timezone | Yes | Timezone for the session, for example `IST (+5:30)` |
+    | Description | No | Optional notes or agenda visible on the class card |
+    | Conferencing Provider | — | Inherited from the batch (Zoom or Google Meet) |
+    | Zoom Account / Google Meet Account | — | Inherited from the batch |
+    | Auto Recording | No | Zoom only: `No Recording`, `Local`, or `Cloud` |
+  </Step>
+
+  <Step title="Save the live class">
+    Click **Save**. Frappe Learning calls the conferencing provider API to create the meeting and writes the returned URLs back to the live class record. The class now appears as a card on the Classes tab for all batch members.
+  </Step>
+</Steps>
+
+## Joining a live class
+
+Live class cards display the scheduled date and the start-to-end time window (computed from start time and duration). On the day of the class, within the class window, enrolled learners see a **Join** button and evaluators/moderators see both a **Start** button (using the host URL) and a **Join** button.
+
+Once the class window has passed, the card shows an **Ended** indicator instead of the join controls.
+
+## Attendance tracking
+
+The `LMS Live Class` record has a read-only **Attendees** field that is populated after the session ends. Clicking a class card (for admins only) opens the **Attendance** modal, which lists the `LMS Live Class Participant` records linked to that session. The attendance modal is only available when at least one attendee is recorded.
+
+## Calendar events
+
+When a live class is saved, Frappe Learning creates a linked Frappe `Event` record (stored in the read-only **Event** field on the live class). This event can be used to send calendar invites to batch participants.

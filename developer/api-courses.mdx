@@ -1,0 +1,230 @@
+---
+title: "Course and enrollment API endpoints"
+description: "Reference for the @frappe.whitelist() methods in lms.lms.api that manage courses, chapters, lessons, enrollment progress, and course statistics."
+---
+
+The methods below cover the full lifecycle of a course: fetching courses for the current user, managing chapters and lessons, tracking learner progress, and exporting or deleting courses. Unless marked **guest**, all methods require an authenticated session or API token.
+
+---
+
+## get_my_courses
+
+Returns up to three courses most relevant to the current user. It first checks the user's recent enrollments, then falls back to featured courses, then to the most popular courses by enrollment count.
+
+```
+POST /api/method/lms.lms.api.get_my_courses
+```
+
+**Parameters:** none
+
+**Returns:** Array of course detail objects (title, description, instructors, enrollment status, etc.)
+
+---
+
+## get_created_courses
+
+Returns up to three courses where the current user is listed as an instructor. Moderators who have no instructor credits see the three most recently published courses globally.
+
+```
+POST /api/method/lms.lms.api.get_created_courses
+```
+
+**Parameters:** none
+
+**Returns:** Array of course detail objects ordered by `published_on` descending.
+
+---
+
+## get_course_progress_distribution
+
+Returns aggregate progress statistics for all enrolled learners on a course. Requires the caller to be an instructor or moderator for that course.
+
+```
+POST /api/method/lms.lms.api.get_course_progress_distribution
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course` | string | Yes | Name of the LMS Course document |
+
+**Returns:**
+
+```json
+{
+  "message": {
+    "average_progress": 42.5,
+    "progress_distribution": [
+      { "name": "Just Started (0-30%)",  "value": 12 },
+      { "name": "In Progress (30-60%)",  "value": 8  },
+      { "name": "Advanced (60-99%)",     "value": 5  },
+      { "name": "Completed (100%)",      "value": 3  }
+    ]
+  }
+}
+```
+
+---
+
+## get_lesson_completion_stats
+
+Returns per-lesson completion counts for a course, ordered by chapter index then lesson index. Requires Course Creator or Moderator role.
+
+```
+POST /api/method/lms.lms.api.get_lesson_completion_stats
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course` | string | Yes | Name of the LMS Course document |
+
+**Returns:** Array of rows with `lesson_name`, `title`, `chapter_idx`, `idx`, and `completion_count`.
+
+---
+
+## get_course_assessment_progress
+
+Returns quiz, assignment, and programming exercise progress for a specific member on a course. Requires course modification rights.
+
+```
+POST /api/method/lms.lms.api.get_course_assessment_progress
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course` | string | Yes | Name of the LMS Course document |
+| `member` | string | Yes | User email of the learner |
+
+**Returns:**
+
+```json
+{
+  "message": {
+    "quizzes": [...],
+    "assignments": [...],
+    "exercises": [...]
+  }
+}
+```
+
+---
+
+## get_certification_details
+
+Returns the current user's enrollment record, whether a paid certificate exists for the course, and any issued certificate.
+
+```
+POST /api/method/lms.lms.api.get_certification_details
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course` | string | Yes | Name of the LMS Course document |
+
+**Returns:**
+
+```json
+{
+  "message": {
+    "membership": { "name": "LMS-ENR-00001", "purchased_certificate": 0 },
+    "paid_certificate": 0,
+    "certificate": { "name": "LMS-CERT-00001", "template": "Default" }
+  }
+}
+```
+
+---
+
+## mark_lesson_progress
+
+Records a lesson as complete for the current user by chapter number and lesson number (1-indexed positions within the course).
+
+```
+POST /api/method/lms.lms.api.mark_lesson_progress
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course` | string | Yes | Name of the LMS Course document |
+| `chapter_number` | int | Yes | 1-indexed position of the chapter in the course |
+| `lesson_number` | int | Yes | 1-indexed position of the lesson within the chapter |
+
+---
+
+## upsert_chapter
+
+Creates or updates a chapter. If `is_scorm_package` is `true`, the server extracts the uploaded zip file and stores SCORM metadata on the chapter document. Requires course modification rights.
+
+```
+POST /api/method/lms.lms.api.upsert_chapter
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `title` | string | Yes | Chapter title |
+| `course` | string | Yes | Name of the LMS Course document |
+| `is_scorm_package` | bool | Yes | Whether the chapter is backed by a SCORM zip |
+| `scorm_package` | object | No | File document dict (required when `is_scorm_package` is `true`) |
+| `name` | string | No | Existing chapter name; omit to create a new chapter |
+
+**Returns:** The saved `Course Chapter` document as a dict.
+
+---
+
+## delete_course
+
+Permanently deletes a course and all associated data: enrollments, progress records, certificates, reviews, chapters, lessons, and discussion topics. Requires course modification rights.
+
+```
+POST /api/method/lms.lms.api.delete_course
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course` | string | Yes | Name of the LMS Course document |
+
+<Warning>
+  This operation is irreversible. All learner progress and certificates linked to the course are deleted.
+</Warning>
+
+---
+
+## export_course_as_zip
+
+Exports the full course structure as a downloadable zip archive. Requires course modification rights.
+
+```
+POST /api/method/lms.lms.api.export_course_as_zip
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `course_name` | string | Yes | Name of the LMS Course document |
+
+---
+
+## import_course_from_zip
+
+Imports a course from a previously exported zip archive. Requires Moderator or Course Creator role.
+
+```
+POST /api/method/lms.lms.api.import_course_from_zip
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `zip_file_path` | string | Yes | Server-side path to the uploaded zip file |
+
+---
+
+## track_video_watch_duration
+
+Records how long the current user has watched each video in a lesson. If an existing record has a lower watch time, it is updated; otherwise a new record is created.
+
+```
+POST /api/method/lms.lms.api.track_video_watch_duration
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `lesson` | string | Yes | Name of the Course Lesson document |
+| `videos` | array | Yes | List of `{ "source": "<url>", "watch_time": <seconds> }` objects |

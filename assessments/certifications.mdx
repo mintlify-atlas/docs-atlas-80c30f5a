@@ -1,0 +1,100 @@
+---
+title: "Issue certifications to course completers"
+description: "Frappe Learning supports course and batch completion certificates, issued through a request, evaluation, and issuance workflow with a public shareable URL."
+---
+
+Frappe Learning can issue certificates to learners who complete a course or a batch. Certificates are stored as `LMS Certificate` records and are generated from a **Print Format** template. The workflow involves the learner requesting a certificate, an evaluator conducting an evaluation session, and a Moderator or evaluator issuing the final certificate.
+
+## Certificate types
+
+An `LMS Certificate` record can be linked to a course, a batch, or both. The **Course** and **Batch** fields determine what completion the certificate attests to:
+
+| Certificate type | Required fields |
+| ---------------- | --------------- |
+| Course completion | **Course** linked to an `LMS Course` record |
+| Batch completion | **Batch** linked to an `LMS Batch` record |
+
+A certificate can reference both a course and a batch if the batch is tied to that course. The **Course Title** and **Batch Title** fields are read-only and fetched automatically from the linked records.
+
+Other fields on the certificate record:
+
+| Field | Description |
+| ----- | ----------- |
+| **Member** (required) | The learner receiving the certificate. Links to a `User` record. |
+| **Issue Date** (required) | Defaults to today. |
+| **Expiry Date** | Optional expiration date. Leave blank for certificates with no expiry. |
+| **Template** (required) | The `Print Format` used to render the certificate PDF. |
+| **Evaluator** | The `Course Evaluator` who conducted the evaluation session. |
+| **Publish on Participant Page** | When enabled, the certificate appears on the learner's profile page. |
+
+## Request, evaluation, and issuance workflow
+
+<Steps>
+  <Step title="Learner submits a certificate request">
+    After completing a course, the learner opens the course overview page and submits a certificate request. This creates an `LMS Certificate Request` record with the following details:
+
+    - **Course** and **Member** are set automatically.
+    - **Date**, **Start Time**, and **End Time** define the proposed evaluation slot.
+    - **Evaluator** is assigned by a Moderator or the system.
+    - **Status** is set to `Upcoming` initially.
+
+    The learner receives a confirmation and, if a Google Meet link is generated, it is stored on the request record.
+
+    <Note>
+      Only logged-in users with the **LMS Student** role can create certificate requests. Students can only read their own requests.
+    </Note>
+  </Step>
+
+  <Step title="Evaluator conducts the evaluation">
+    On the scheduled date, the evaluator meets the learner and assesses their knowledge. After the session, the evaluator (or a Moderator) updates the `LMS Certificate Request` record:
+
+    - Set **Status** to `Completed` if the learner passed, or `Cancelled` if not.
+
+    The **Batch Evaluator** and **Moderator** roles have full write access to certificate request records.
+  </Step>
+
+  <Step title="Issue the certificate">
+    Once the evaluation is complete and the learner has passed, a Moderator, Batch Evaluator, or Course Creator creates an `LMS Certificate` record:
+
+    1. Go to **LMS Certificate** and click **New**.
+    2. Set **Member** to the learner.
+    3. Link the **Course** and/or **Batch** as appropriate.
+    4. Set **Issue Date** (defaults to today) and optionally **Expiry Date**.
+    5. Select a **Template** (Print Format) for the certificate layout.
+    6. Optionally link the **Evaluator** who conducted the session.
+    7. Enable **Publish on Participant Page** to make the certificate visible on the learner's profile.
+    8. Save the record.
+
+    <Tip>
+      Create a dedicated Print Format under **LMS Certificate** before issuing your first certificate. Frappe Learning ships with a default `Certificate` print format that you can customize with your organization's branding.
+    </Tip>
+  </Step>
+
+  <Step title="Share the certificate">
+    Each certificate has a publicly accessible URL in the following format:
+
+    ```text
+    /courses/{course-name}/{certificate-id}
+    ```
+
+    Visiting this URL redirects to a rendered PDF of the certificate using the linked Print Format. Share this link with the learner so they can download or share their certificate.
+
+    <Note>
+      The `certificate-id` in the URL is the name of the `LMS Certificate` record (for example, `LMS-CERT-00001`). The URL is only meaningful if the certificate record exists and has a valid **Template** set.
+    </Note>
+  </Step>
+</Steps>
+
+## Certificate request statuses
+
+`LMS Certificate Request` records move through three statuses:
+
+| Status | Meaning |
+| ------ | ------- |
+| `Upcoming` | The evaluation session is scheduled but has not yet taken place. |
+| `Completed` | The evaluation session concluded. The evaluator can now issue a certificate. |
+| `Cancelled` | The session was cancelled or the learner did not pass. |
+
+## Roles and permissions
+
+The **System Manager**, **Moderator**, **Batch Evaluator**, and **Course Creator** roles can create and manage `LMS Certificate` records. **LMS Students** have read-only access and can print or export their own certificates. Certificate requests can be created by **LMS Students** (own records only) and managed by **Moderators**, **Batch Evaluators**, and **Course Creators**.

@@ -1,0 +1,58 @@
+---
+title: "Self-host Frappe Learning on your server"
+description: "Deploy a production-ready Frappe Learning instance on your own server using the easy-install script — no prior Frappe experience required."
+---
+
+Frappe provides an `easy-install.py` script that sets up a fully containerized, production-ready Frappe Learning instance on any Linux server. The script handles the Frappe bench, database, and reverse proxy configuration automatically.
+
+<Note>
+  The setup takes approximately 5 minutes to complete on a freshly provisioned server.
+</Note>
+
+<Steps>
+  <Step title="Download the easy-install script">
+    Run the following command on your server to download the installation script:
+
+    ```bash
+    wget https://frappe.io/easy-install.py
+    ```
+  </Step>
+
+  <Step title="Configure DNS before deploying">
+    The site is served at the domain you specify in the deploy command. Set this up before running the script:
+
+    - **Public server**: Add an **A record** in your DNS provider pointing your domain to the server's public IP address.
+    - **Local server**: Add an entry to your `/etc/hosts` file mapping your chosen domain to `127.0.0.1`.
+
+    <Warning>
+      If DNS is not configured before you access the site, you will see a `404 Page Not Found` error. Make sure the A record or hosts entry is in place before opening the URL in your browser.
+    </Warning>
+  </Step>
+
+  <Step title="Run the deploy command">
+    Execute the following command, replacing the placeholder values with your own:
+
+    ```bash
+    python3 ./easy-install.py deploy \
+        --project=learning_prod_setup \
+        --email=your_email.example.com \
+        --image=ghcr.io/frappe/lms \
+        --version=stable \
+        --app=lms \
+        --sitename subdomain.domain.tld
+    ```
+
+    Replace the following parameters with your actual values:
+
+    | Parameter | Description |
+    | --------- | ----------- |
+    | `your_email.example.com` | Your email address, used for SSL certificate registration |
+    | `subdomain.domain.tld` | The domain where Frappe Learning will be hosted |
+
+    The script pulls the official `ghcr.io/frappe/lms` image, configures the database, sets up the reverse proxy, and starts all services.
+  </Step>
+
+  <Step title="Open your site">
+    Once the script finishes, navigate to the domain you configured in your browser. Log in with the administrator credentials created during setup to access Frappe Learning.
+  </Step>
+</Steps>

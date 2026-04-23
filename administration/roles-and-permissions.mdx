@@ -1,0 +1,123 @@
+---
+title: "User roles and permissions in Frappe Learning"
+description: "Understand the four LMS roles — Moderator, Course Creator, Batch Evaluator, and LMS Student — and learn how to assign them to users."
+---
+
+Frappe Learning uses Frappe's standard role-based access control system. Four LMS-specific roles are bundled with the app; each grants a distinct set of capabilities within the portal. Administrators assign these roles through the Frappe desk in the same way they assign any other role in the system.
+
+## LMS roles
+
+<AccordionGroup>
+  <Accordion title="Moderator">
+    The Moderator role has the highest level of access within the LMS. Moderators can perform every action a Course Creator can, plus actions that require site-wide authority.
+
+    **What a Moderator can do:**
+
+    - Create, edit, and delete courses, chapters, and lessons.
+    - **Publish and unpublish courses** — only Moderators can toggle the Published switch on a course.
+    - Create and manage batches, including scheduling live classes and assigning evaluators.
+    - Enroll and remove learners from courses and batches.
+    - Read and write **LMS Settings** (alongside System Manager).
+    - View the full student list, assessment submissions, and site statistics.
+    - Manage job postings.
+    - Issue and revoke certificates.
+
+    <Note>
+      The Moderator role is also listed as a permitted role in `lms_settings.json`, meaning Moderators can change site-wide configuration without needing the System Manager role.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Course Creator">
+    Course Creators build and maintain course content. They cannot publish courses to the public or change site-wide settings, but they have full control over the content they own.
+
+    **What a Course Creator can do:**
+
+    - Create new courses and fill in all details including description, image, tags, and pricing.
+    - Add, reorder, and delete chapters and lessons within their courses.
+    - Upload and embed content: videos, PDFs, quizzes, assignments, and programming exercises.
+    - Set a course to **Upcoming** to announce it before it is ready.
+    - View enrolled learners and their progress on courses they instruct.
+    - Create and grade quiz and assignment submissions.
+
+    **What a Course Creator cannot do:**
+
+    - Publish or unpublish a course (requires Moderator).
+    - Edit or delete courses created by other users (unless also a Moderator).
+    - Change LMS Settings.
+  </Accordion>
+
+  <Accordion title="Batch Evaluator">
+    Batch Evaluators are subject-matter experts assigned to conduct certificate evaluations — live sessions where a learner demonstrates mastery of a course topic.
+
+    **What a Batch Evaluator can do:**
+
+    - View assigned certificate evaluation requests.
+    - Schedule evaluation sessions and send calendar invites (when enabled in LMS Settings).
+    - Mark evaluations as passed or failed and trigger certificate issuance.
+    - Access the learner's submission history for the courses they evaluate.
+
+    <Tip>
+      A Batch Evaluator does not need to be a Course Creator. You can assign this role to external experts or assessors who only need access to the evaluation workflow.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="LMS Student">
+    LMS Student is the standard learner role. It grants access to the learning portal and the ability to enroll in and complete courses.
+
+    **What an LMS Student can do:**
+
+    - Browse published courses and batches.
+    - Self-enroll in free courses (when self-enrollment is enabled on the course).
+    - Pay for and enroll in paid courses and batches.
+    - Complete lessons, submit quizzes, and upload assignments.
+    - Request a certificate evaluation after completing a course.
+    - View personal progress, earned badges, and certificates.
+    - Participate in course discussions.
+
+    **What an LMS Student cannot do:**
+
+    - Create or edit courses or batches.
+    - View other learners' data.
+    - Access the Frappe desk or any administrative doctypes.
+  </Accordion>
+</AccordionGroup>
+
+## How to assign roles to users
+
+<Steps>
+  <Step title="Open the user record">
+    In the Frappe desk, go to **Settings → User** (or search for **User** in the search bar). Open the record for the person you want to assign a role to.
+  </Step>
+
+  <Step title="Go to the Roles section">
+    Scroll down to the **Roles** table on the user form. Each row in this table represents a role currently assigned to the user.
+  </Step>
+
+  <Step title="Add the LMS role">
+    Click **Add Row** in the Roles table. In the **Role** column, select one of the four LMS roles:
+
+    - `Moderator`
+    - `Course Creator`
+    - `Batch Evaluator`
+    - `LMS Student`
+
+    A user can hold multiple roles simultaneously. For example, an instructor who also moderates the site would hold both `Course Creator` and `Moderator`.
+  </Step>
+
+  <Step title="Save the user record">
+    Click **Save**. The new permissions take effect immediately — the user does not need to log out and back in.
+  </Step>
+</Steps>
+
+<Warning>
+  Granting the **Moderator** role gives the user full read and write access to LMS Settings, which affects all learners on the site. Assign this role only to trusted administrators.
+</Warning>
+
+## Role summary
+
+| Role | Create courses | Publish courses | Manage batches | Conduct evaluations | Change LMS Settings |
+| ---- | -------------- | --------------- | -------------- | ------------------- | ------------------- |
+| Moderator | Yes | Yes | Yes | Yes | Yes |
+| Course Creator | Yes | No | Limited | No | No |
+| Batch Evaluator | No | No | No | Yes | No |
+| LMS Student | No | No | No | No | No |

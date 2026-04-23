@@ -1,0 +1,93 @@
+---
+title: "Set up payments for courses and batches"
+description: "Configure a payment gateway, currency options, GST, USD display, rounding, payment reminders, and coupon support for paid LMS content."
+---
+
+Frappe Learning supports paid courses and paid batches through the **Frappe Payments** app. When a learner tries to enroll in paid content, they are redirected to a checkout flow powered by the gateway you configure here. All payment settings live in **LMS Settings → Payment Settings**.
+
+<Note>
+  Frappe Payments must be installed on your site before you can accept payments. If the app is not installed, LMS Settings displays a warning in the Payment Settings tab and payment fields have no effect.
+</Note>
+
+## Prerequisites
+
+Before configuring payment settings in Frappe Learning, complete the following steps in the Frappe Payments app:
+
+<Steps>
+  <Step title="Install Frappe Payments">
+    Frappe Payments is listed as a required app in `hooks.py`. On a self-hosted site, install it with:
+
+    ```bash
+    bench get-app payments
+    bench --site your-site install-app payments
+    ```
+
+    On Frappe Cloud, add the **Payments** app from the **Apps** section of your site dashboard.
+  </Step>
+
+  <Step title="Create a Payment Gateway record">
+    In the Frappe desk, search for **Payment Gateway** and create a new record for your payment provider (for example, Razorpay or Stripe). Configure the gateway with the API credentials provided by your payment provider.
+  </Step>
+
+  <Step title="Link the gateway in LMS Settings">
+    Open **LMS Settings → Payment Settings** and enter the name of your Payment Gateway record in the **Payment Gateway** field.
+  </Step>
+</Steps>
+
+## Payment gateway configuration
+
+| Field | Description |
+| ----- | ----------- |
+| Payment Gateway | The name of the **Payment Gateway** record created in Frappe Payments. This gateway handles all checkout transactions for courses and batches. |
+| Default Currency | The currency applied to transactions when a course or batch does not specify its own currency. Select any currency defined in the Frappe **Currency** list. |
+
+## Currency display options
+
+When your learners come from multiple countries, you may want to show prices in both your local currency and USD.
+
+| Field | Description |
+| ----- | ----------- |
+| Show USD Equivalent | Displays an approximate USD price alongside the local currency price on course and batch pages. |
+| Primary Countries | A list of countries whose visitors see the local currency price as the primary price rather than the USD equivalent. Visible only when **Show USD Equivalent** is enabled. |
+| Apply Rounding on Equivalent | Rounds the displayed USD equivalent to the nearest whole number. Useful when exchange-rate conversion produces fractional cents. |
+
+## Tax settings
+
+| Field | Description |
+| ----- | ----------- |
+| Apply GST for India | When enabled, Indian Goods and Services Tax is added to the checkout total for all transactions. Enable this if your organisation is GST-registered in India. |
+
+## Payment reminders
+
+Frappe Learning can automatically send reminder emails to learners who have enrolled in paid content but have not yet completed payment. Reminders are sent once per day by a scheduled task (`lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder`).
+
+| Field | Default | Description |
+| ----- | ------- | ----------- |
+| Send Payment Reminders for Batch | Disabled | Sends a daily reminder to learners with an outstanding payment for a batch. |
+| Send Payment Reminders for Course | Disabled | Sends a daily reminder to learners with an outstanding payment for a course. |
+
+<Tip>
+  Configure the **Payment Reminder Template** in **LMS Settings → Email Templates** to customise the content of these reminder emails. Without a template, the reminder email uses a system default.
+</Tip>
+
+## Coupon support
+
+Frappe Learning includes an **LMS Coupon** doctype that lets you create discount codes for courses and batches. Learners can enter a coupon code at checkout to receive a percentage or fixed-amount discount.
+
+To create a coupon:
+
+<Steps>
+  <Step title="Open the LMS Coupon list">
+    In the Frappe desk, search for **LMS Coupon** and click **New**.
+  </Step>
+  <Step title="Fill in the coupon details">
+    Set a unique coupon code, choose the discount type (percentage or fixed amount), enter the discount value, and optionally restrict the coupon to a specific course or batch and set an expiry date.
+  </Step>
+  <Step title="Save and share the code">
+    Save the record. Share the coupon code with your learners. The code is applied at the checkout step before payment is processed.
+  </Step>
+</Steps>
+
+<Warning>
+  Coupon codes are case-sensitive at checkout. Communicate the exact code including capitalisation to your learners.
+</Warning>

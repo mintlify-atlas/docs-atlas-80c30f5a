@@ -1,0 +1,83 @@
+---
+title: "Frappe Learning REST API overview"
+description: "Call any @frappe.whitelist() method in lms.lms.api over HTTP using Frappe's standard method endpoint with session cookie or API key authentication."
+---
+
+Frappe Learning exposes its server-side logic through Frappe's built-in whitelisted method mechanism. Any function decorated with `@frappe.whitelist()` in `lms/lms/api.py` becomes an HTTP endpoint automatically — no additional routing configuration is required. The same endpoint pattern used across all Frappe apps applies here.
+
+## Base URL pattern
+
+```
+POST /api/method/lms.lms.api.<method_name>
+```
+
+All method calls use `POST`. Parameters are passed as JSON in the request body (with `Content-Type: application/json`) or as `application/x-www-form-urlencoded` form data.
+
+## Authentication
+
+Frappe supports two authentication approaches:
+
+### Session cookie (browser)
+
+Log in via `/api/method/login` and include the `sid` cookie on subsequent requests. This is what the Frappe Learning front-end uses internally.
+
+```bash
+# Step 1: log in and capture the session cookie
+curl -c cookies.txt -X POST https://your-site.example.com/api/method/login \
+  -H "Content-Type: application/json" \
+  -d '{"usr": "user@example.com", "pwd": "yourpassword"}'
+
+# Step 2: call an API method with the session cookie
+curl -b cookies.txt -X POST https://your-site.example.com/api/method/lms.lms.api.get_user_info
+```
+
+### API key and secret (server-to-server)
+
+Generate an API key and secret in the Frappe Desk under **User → API Access**, then pass them as a header:
+
+```bash
+curl -X POST https://your-site.example.com/api/method/lms.lms.api.get_user_info \
+  -H "Authorization: token <api_key>:<api_secret>"
+```
+
+<Note>
+  Methods decorated with `@frappe.whitelist(allow_guest=True)` can be called without any authentication. All other methods require a valid session or API token.
+</Note>
+
+## Available method categories
+
+| Category | Description |
+| --- | --- |
+| **User & session** | `get_user_info`, `get_translations`, `get_profile_details`, `get_streak_info` |
+| **Courses** | `get_my_courses`, `get_created_courses`, `get_course_progress_distribution`, `get_lesson_completion_stats`, `delete_course`, `export_course_as_zip`, `import_course_from_zip` |
+| **Chapters & lessons** | `upsert_chapter`, `delete_chapter`, `delete_lesson`, `update_lesson_index`, `update_chapter_index`, `mark_lesson_progress` |
+| **Batches** | `get_my_batches`, `get_created_batches`, `delete_batch`, `get_announcements` |
+| **Live classes** | `get_my_live_classes`, `get_admin_live_classes` |
+| **Certificates** | `get_certification_details`, `save_certificate_details`, `save_evaluation_details`, `get_certified_participants` |
+| **Billing** | `validate_billing_access`, `get_payment_field_meta` |
+| **Settings & branding** | `get_lms_settings`, `get_branding`, `get_sidebar_settings`, `update_sidebar_item`, `delete_sidebar_item` |
+
+## Example: calling get_lms_settings
+
+`get_lms_settings` is guest-accessible and returns a safe subset of LMS configuration fields.
+
+```bash
+curl -X POST https://your-site.example.com/api/method/lms.lms.api.get_lms_settings
+```
+
+```json
+{
+  "message": {
+    "allow_guest_access": 0,
+    "prevent_skipping_videos": 0,
+    "contact_us_email": "support@example.com",
+    "contact_us_url": null,
+    "livecode_url": null,
+    "disable_pwa": 0,
+    "allow_job_posting": 1,
+    "demo_data_present": 0
+  }
+}
+```
+
+All Frappe API responses wrap the return value in a `"message"` key.

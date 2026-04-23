@@ -1,0 +1,116 @@
+---
+title: "Create and manage a learning batch"
+description: "Step-by-step guide to creating a batch in Frappe Learning, configuring enrollment settings, managing learners, and setting up a timetable schedule."
+---
+
+A batch brings together a group of learners around a shared schedule. Moderators, instructors, and Batch Evaluators can create batches. The batch form is divided into several sections covering basic details, certification options, conferencing, pricing, and the timetable.
+
+## Create a batch
+
+<Steps>
+  <Step title="Open the batch creation dialog">
+    Navigate to **Batches** in the sidebar. Click the **Create** button in the top-right corner and choose **New Batch** from the dropdown. A modal opens to collect the initial batch name; after saving you are taken to the full batch settings form.
+
+    <Tip>
+      You can also import multiple batches at once by choosing **Import Batch** from the same dropdown, which opens the Frappe data importer for the `LMS Batch` doctype.
+    </Tip>
+  </Step>
+
+  <Step title="Fill in the basic details">
+    In the **Details** section of the batch settings form, provide:
+
+    | Field | Required | Description |
+    |---|---|---|
+    | Title | Yes | Display name for the batch |
+    | Batch Start Date | Yes | Date the batch begins |
+    | Batch End Date | Yes | Date the batch ends |
+    | Session Start Time | Yes | Daily start time for sessions |
+    | Session End Time | Yes | Daily end time for sessions |
+    | Timezone | Yes | Timezone string, for example `IST (+5:30)` |
+    | Seat Count | No | Maximum number of learners; leave blank for unlimited |
+    | Category | No | Links to an `LMS Category` for filtering on the batches list |
+    | Allow Self Enrollment | No | When enabled, published batches can be joined without manual approval |
+    | Published | No | Makes the batch visible to learners |
+
+    Toggle **Published** to make the batch visible on the public batches page. Unpublished batches are only visible to Moderators, evaluators, and instructors.
+  </Step>
+
+  <Step title="Add instructors">
+    In the **Instructors** field, search for and select one or more users who hold the **Batch Evaluator** role. You can create a new evaluator user inline by clicking the create option in the dropdown; the new member form defaults to the `batch_evaluator` role.
+
+    Also provide a **Short Description** (a brief summary shown on the batch card) and fill in the rich-text **Batch Details** field with the full description that appears on the batch overview page.
+  </Step>
+
+  <Step title="Configure certification">
+    In the **Certification** section:
+
+    - Enable **Evaluation** to indicate that participants must be evaluated before certificates are issued. When enabled, set an **Evaluation End Date** to close the evaluation window.
+    - Enable **Certification** to allow certificates to be generated for participants after the batch completes.
+
+    Both toggles are independent; you can issue certificates without a formal evaluation period if needed.
+  </Step>
+
+  <Step title="Set the conferencing provider">
+    In the **Conferencing** section, select either **Zoom** or **Google Meet** as the **Conferencing Provider**. Then link the corresponding account record:
+
+    - **Zoom** — select an `LMS Zoom Settings` account.
+    - **Google Meet** — select an `LMS Google Meet Settings` account.
+
+    This setting is inherited by live classes created for the batch.
+
+    <Note>
+      You must configure a Zoom or Google Meet account in your site settings before linking it here. Live class creation is disabled if no provider account is configured on the batch.
+    </Note>
+  </Step>
+
+  <Step title="Configure pricing (optional)">
+    Toggle **Paid Batch** to charge learners before their enrollment is confirmed. When enabled, two additional fields appear:
+
+    | Field | Description |
+    |---|---|
+    | Amount | Price in the selected currency |
+    | Currency | Links to an enabled `Currency` record |
+    | Amount (USD) | Optional USD override; if set, the USD-equivalent auto-conversion is skipped |
+
+    <Note>
+      Paid batch enrollment requires a payment gateway to be configured in your Frappe site. Learners are enrolled automatically once payment is completed.
+    </Note>
+  </Step>
+
+  <Step title="Add courses to the batch">
+    The **Courses** child table on the right panel of the settings form lets you attach one or more `LMS Course` records to the batch. Courses linked here appear on the batch overview page and are used when computing student progress in the dashboard.
+  </Step>
+
+  <Step title="Set up the timetable">
+    Open the **Timetable** tab in the batch settings. You can either:
+
+    - Select a pre-built **Timetable Template** to populate the schedule automatically, or
+    - Add rows directly to the **Timetable** child table.
+
+    Each timetable row belongs to an `LMS Batch Timetable` record. Use **Timetable Legends** to add colour-coded labels for different types of activities.
+
+    Toggle **Show live class** to display upcoming live classes inline on the timetable view. Toggle **Allow accessing future dates** to control whether learners can navigate to timetable dates that have not yet arrived.
+  </Step>
+
+  <Step title="Save the batch">
+    Click **Save** in the top-right corner of the batch settings page, or press `Ctrl+S` / `Cmd+S`. A success toast confirms the batch was updated.
+  </Step>
+</Steps>
+
+## Manage enrollment
+
+The **Dashboard** tab inside a batch (visible to Moderators and Batch Evaluators) shows all enrolled students. From this view you can:
+
+- **Enroll a learner manually** — click the **Enroll** button and search for a user by name.
+- **View progress** — click any student row to open a progress breakdown across courses and assessments.
+- **Search students** — use the search box to filter the enrolled list by name.
+
+The dashboard also shows aggregate stats: total enrolled count, total certified count, course count, and assessment count. A bar chart displays how many students have completed each course and assessment.
+
+## Announcements
+
+Moderators and evaluators can send an announcement to all enrolled learners using the **Make an Announcement** action from the batch menu (three-dot icon). This option is only available when at least one learner is enrolled.
+
+## Delete a batch
+
+From the batch settings form, click the trash icon to delete the batch. Deleting a batch also removes all linked data including enrolled students, linked courses, assessments, feedback, and discussions.

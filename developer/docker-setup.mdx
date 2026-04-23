@@ -1,0 +1,49 @@
+---
+title: "Run Frappe Learning with Docker"
+description: "Spin up a fully configured Frappe Learning development environment with Docker Compose in three commands, no manual dependency installation required."
+---
+
+The Docker-based setup bundles Frappe, MariaDB, Redis, and the LMS app into a single Compose project. It is the fastest way to get a working instance without configuring system dependencies or a local bench. You need [Docker and Docker Compose](https://docs.docker.com/get-docker/) installed before you begin.
+
+<Steps>
+  <Step title="Create the project folder and download the required files">
+    Create a directory for the project, then download the pre-built Compose file and the initialisation script from the repository:
+
+    ```bash
+    mkdir frappe-learning
+    cd frappe-learning
+
+    wget -O docker-compose.yml https://raw.githubusercontent.com/frappe/lms/develop/docker/docker-compose.yml
+    wget -O init.sh https://raw.githubusercontent.com/frappe/lms/develop/docker/init.sh
+    ```
+  </Step>
+
+  <Step title="Start the containers">
+    Bring up all services in detached mode. The `init.sh` script runs automatically as part of the Compose entrypoint and provisions the site on first boot:
+
+    ```bash
+    docker compose up -d
+    ```
+
+    The first run pulls images and initialises the database, which can take a few minutes. You can follow progress with `docker compose logs -f`.
+  </Step>
+
+  <Step title="Open the app in your browser">
+    Once the containers are healthy, the site is available at [http://lms.localhost:8000/lms](http://lms.localhost:8000/lms).
+
+    Sign in with the default credentials:
+
+    | Field    | Value         |
+    | -------- | ------------- |
+    | Username | Administrator |
+    | Password | admin         |
+  </Step>
+</Steps>
+
+<Warning>
+  Change the default administrator password immediately if the instance is accessible on a shared or public network.
+</Warning>
+
+<Tip>
+  To stop the environment without losing data, run `docker compose stop`. To destroy all containers and volumes and start fresh, run `docker compose down -v`.
+</Tip>

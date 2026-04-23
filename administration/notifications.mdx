@@ -1,0 +1,72 @@
+---
+title: "Email and in-app notifications setup"
+description: "Configure email and in-app notifications for published courses and batches, set email templates, and understand how scheduled notification tasks work."
+---
+
+Frappe Learning can notify learners and staff when courses and batches are published, when payments are due, and when other significant events occur. Notifications are configured in two places: **LMS Settings → General** for the notification triggers, and **LMS Settings → Email Templates** for the email content. In-app notifications are delivered through Frappe's built-in Notification Log system.
+
+## Notification settings
+
+The **Notifications** section on the General tab controls whether a notification is sent when a course or batch is published, and what channel it uses.
+
+| Field | Options | Description |
+| ----- | ------- | ----------- |
+| Send Notification for Published Courses | (none), Email, In-app | Sends a notification to subscribed users when a course is published. Select **Email** to send an email or **In-app** to create a Frappe Notification Log entry. Leave blank to disable this notification. |
+| Send Notification for Published Batches | (none), Email, In-app | Sends a notification to subscribed users when a batch is published. Select **Email** to send an email or **In-app** to create a Frappe Notification Log entry. Leave blank to disable this notification. |
+
+<Note>
+  The notification for published courses is dispatched by the daily scheduled task `lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses`. It runs once per day, so learners may receive the notification up to 24 hours after a course is published.
+</Note>
+
+## Email templates
+
+The **Email Templates** tab links existing **Email Template** records to LMS events. Frappe Learning uses these templates when sending transactional emails triggered by learner actions or scheduled tasks.
+
+| Field | Event |
+| ----- | ----- |
+| Certificate Email Template | Sent to a learner when they earn a course completion certificate. |
+| Batch Confirmation Template | Sent to a learner when their batch enrollment is confirmed by a Moderator or Course Creator. |
+| Payment Reminder Template | Sent to learners with outstanding payments when **Send Payment Reminders for Batch** or **Send Payment Reminders for Course** is enabled. |
+
+### Creating an email template
+
+<Steps>
+  <Step title="Open Email Template">
+    In the Frappe desk, search for **Email Template** and click **New**.
+  </Step>
+  <Step title="Write the subject and body">
+    Give the template a descriptive name. Write the **Subject** and **Response** (body) using Jinja2 syntax to include dynamic values. For example, use `{{ doc.student_name }}` or `{{ doc.course_name }}` depending on the context the template is used in.
+  </Step>
+  <Step title="Save and link the template">
+    Save the template. Then open **LMS Settings → Email Templates** and select the new template in the appropriate field.
+  </Step>
+</Steps>
+
+<Tip>
+  Use the **Preview** button on an Email Template record to see how the rendered output looks before linking it in LMS Settings.
+</Tip>
+
+## In-app notification system
+
+When you choose **In-app** as the notification channel, Frappe Learning creates entries in Frappe's **Notification Log** doctype. These appear in the bell icon in the Frappe desk and in the **Notifications** section of the LMS portal sidebar (when the Notifications sidebar item is enabled in **LMS Settings → Sidebar**).
+
+In-app notifications are also published in real time via WebSockets. The `Notification Log` document event hook (`lms.lms.utils.publish_notifications`) broadcasts new entries to connected clients immediately, so learners see notifications without refreshing the page.
+
+Discussion reply notifications follow the same in-app path: when a user replies to a discussion thread, `lms.lms.utils.handle_notifications` creates a Notification Log entry for participants in that thread.
+
+## Scheduled notification tasks
+
+The following scheduled tasks in `hooks.py` drive time-based notifications:
+
+| Schedule | Task | What it does |
+| -------- | ---- | ------------ |
+| Daily | `lms.lms.doctype.lms_payment.lms_payment.send_payment_reminder` | Sends payment reminder emails to learners with outstanding balances (requires the payment reminder setting to be enabled). |
+| Daily | `lms.lms.doctype.lms_batch.lms_batch.send_batch_start_reminder` | Sends a reminder to enrolled learners before their batch is scheduled to begin. |
+| Daily | `lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder` | Sends a reminder to enrolled learners before a scheduled live class. |
+| Daily | `lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses` | Sends the published-course notification if **Send Notification for Published Courses** is set to Email or In-app. |
+| Hourly | `lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals` | Schedules pending certificate evaluation sessions. |
+| Hourly | `lms.lms.doctype.lms_live_class.lms_live_class.update_attendance` | Updates attendance records after live class sessions end. |
+
+<Note>
+  These tasks run on the Frappe scheduler. If the scheduler is not running on your site, none of the time-based notifications will be sent. Verify the scheduler is active by running `bench doctor` on a self-hosted instance.
+</Note>

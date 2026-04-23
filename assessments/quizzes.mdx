@@ -1,0 +1,94 @@
+---
+title: "Quizzes: assess learner knowledge"
+description: "Embed interactive quizzes directly in lesson content to test comprehension, enforce passing thresholds, and optionally reveal correct answers on submission."
+---
+
+Quizzes are a built-in assessment tool in Frappe Learning. You create an `LMS Quiz` record, add questions to it, and then embed it in a lesson either via the lesson's **Quiz ID** field or with the `Quiz` macro in the lesson body. Learners submit their answers directly on the lesson page, and results are recorded as `LMS Quiz Submission` records.
+
+## Question types
+
+Each question in a quiz is stored as an `LMS Question` record and has one of three types, selected in the **Type** field:
+
+| Type | Description |
+| ---- | ----------- |
+| `Choices` | Presents up to four labeled options. Mark one or more options as correct. Each option can have an optional explanation shown after submission. |
+| `User Input` | A free-text field where the learner types an answer. You provide up to four **Possible Answers** that the system compares against the learner's input. |
+| `Open Ended` | A free-text field with no automatic checking. Useful for reflective prompts or questions graded manually. |
+
+For `Choices` questions, enabling **Multiple Correct Answers** allows more than one option to be marked correct and requires the learner to select all of them to earn the marks.
+
+## Create a quiz and attach it to a lesson
+
+<Steps>
+  <Step title="Create the question records">
+    Go to **LMS Question** in the desk and create one record per question. For each question:
+
+    - Set the **Question** text using the rich-text editor.
+    - Choose a **Type**: `Choices`, `User Input`, or `Open Ended`.
+    - For `Choices` questions, fill in **Option 1** and **Option 2** (required) and optionally **Option 3** and **Option 4**. Check **Is Correct** on each correct option. Add an optional **Explanation** to any option — these are shown to the learner after submission when **Show Answers** is enabled.
+    - For `User Input` questions, enter at least one value in **Possible Answer 1**. Add up to three more acceptable answers in **Possible Answer 2–4**.
+
+    Save each question. The record is assigned an auto-generated name in the format `QTS-YYYY-#####`.
+  </Step>
+
+  <Step title="Create the quiz record">
+    Go to **LMS Quiz** and click **New**. Fill in the following fields:
+
+    | Field | Description |
+    | ----- | ----------- |
+    | **Title** (required) | The quiz name shown as a heading in the lesson. |
+    | **Passing Percentage** (required) | Minimum score (0–100) a learner must reach to pass. |
+    | **Max Attempts** | Number of times a learner can submit. Set to `0` for unlimited attempts. |
+    | **Show Answers** | Reveal correct answers and per-option explanations after submission. Enabled by default. |
+    | **Show Submission History** | Display the learner's past scores and submission dates below the quiz. |
+    | **Duration (in minutes)** | Optional time limit. Leave blank for no limit. |
+    | **Shuffle Questions** | Randomize question order for each attempt. |
+    | **Limit Questions To** | Show only this many questions per attempt (active when **Shuffle Questions** is on). |
+    | **Enable Negative Marking** | Deduct marks for wrong answers. |
+    | **Marks To Cut** | Number of marks deducted per wrong answer when negative marking is enabled. Default is `1`. |
+
+    In the **Questions** table, add each `LMS Question` record you created and set the **Marks** for each question. The **Total Marks** field is calculated automatically.
+
+    Save the quiz. Note the **Name** field — you will use it in the next step.
+  </Step>
+
+  <Step title="Attach the quiz to a lesson">
+    Open the lesson you want to add the quiz to. You have two options:
+
+    **Option A — Quiz ID field (appends to bottom):**
+    Enter the quiz name in the lesson's **Quiz ID** field and save. The quiz renders automatically at the bottom of the lesson, after the body content.
+
+    **Option B — Quiz macro (inline position):**
+    Place the macro in the lesson **Body** at the exact position where you want the quiz to appear:
+
+    ```text
+    {{ Quiz("my-quiz-name") }}
+    ```
+
+    Replace `my-quiz-name` with the exact name of the `LMS Quiz` record (case-sensitive).
+
+    <Note>
+      Use the **Quiz ID** field for a single quiz at the end of the lesson. Use the macro when you need the quiz at a specific point within the lesson body, or when you want multiple quizzes in one lesson.
+    </Note>
+  </Step>
+</Steps>
+
+## Quiz settings reference
+
+| Setting | Default | Behavior |
+| ------- | ------- | -------- |
+| `max_attempts` | `0` (unlimited) | Once a learner reaches the limit, the submit button is hidden. |
+| `show_answers` | Enabled | Correct options and explanations are revealed after each submission. |
+| `show_submission_history` | Disabled | When enabled, learners see a table of past attempts with scores and dates. |
+| `passing_percentage` | Required | Submissions below this threshold are marked as failed. |
+| `shuffle_questions` | Disabled | Randomizes question order on each attempt. |
+| `limit_questions_to` | — | Only valid when `shuffle_questions` is on. Limits how many questions are shown. |
+| `enable_negative_marking` | Disabled | Deducts `marks_to_cut` marks for each wrong answer. |
+
+<Warning>
+  Guest users cannot see or submit quizzes. A logged-in prompt is shown in place of the quiz for unauthenticated visitors.
+</Warning>
+
+## Roles and permissions
+
+The **Course Creator**, **Moderator**, and **System Manager** roles can create, edit, and delete quiz records. The **Batch Evaluator** role also has full write access. **LMS Students** can read and submit quizzes but cannot modify them.
